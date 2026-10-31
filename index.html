@@ -53,6 +53,7 @@ p{margin:0}
 .btn{all:unset;cursor:pointer;text-align:center;font-weight:700;padding:13px 18px;border-radius:14px;background:var(--accent);color:var(--surface)}
 .btn.ghost{background:var(--accent-soft);color:var(--accent)}
 .btn.sun{background:var(--sun);color:var(--sun-ink)}
+.btn small{display:block;font-size:.82rem;font-weight:600;line-height:1.3}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .row>*{flex:1 1 140px}
 label{font-size:.875rem;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:6px}
@@ -146,7 +147,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 <!-- ACCUEIL -->
 <section class="view" id="v-accueil">
   <div class="hero">
-    <span class="eyebrow">Orthodontie · Le Chesnay</span>
+    <span class="eyebrow">Orthodontie</span>
     <h1>Les Héroïnes du Sourire</h1>
     <p>Bienvenue dans votre espace patient : tout ce qu'il faut pendant votre traitement, dans votre poche.</p>
   </div>
@@ -160,6 +161,11 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
     </g>
     <circle cx="460" cy="34" r="14" fill="var(--sun)"/>
   </svg>
+  <div class="card" id="homeRdv">
+    <h3>Prendre rendez-vous</h3>
+    <a class="btn" href="https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa" target="_blank" rel="noopener">Dr Johana Lichaa<small>Le Chesnay-Rocquencourt</small></a>
+    <a class="btn" href="https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul" target="_blank" rel="noopener">Dr Clara Salem Melloul<small>Villeneuve-le-Roi</small></a>
+  </div>
   <div class="card" id="homeAligner">
     <span class="eyebrow">Ma gouttière</span>
     <p id="homeAlignerTxt">Renseignez votre traitement pour savoir quand changer de gouttière.</p>
@@ -258,17 +264,22 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 
 <!-- CONTACT -->
 <section class="view" id="v-contact" hidden>
-  <div class="hero"><span class="eyebrow">Nous trouver</span><h2>Les Héroïnes du Sourire</h2><p>Orthodontie · Le Chesnay</p></div>
+  <div class="hero"><span class="eyebrow">Nous trouver</span><h2>Les Héroïnes du Sourire</h2><p>Prenez rendez-vous avec votre docteure.</p></div>
   <div class="card">
+    <h3>Dr Johana Lichaa</h3>
+    <p>Le Chesnay-Rocquencourt</p>
+    <a class="btn" href="https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa" target="_blank" rel="noopener">Prendre rendez-vous<small>sur Doctolib</small></a>
     <dl class="kv">
       <dt>Adresse</dt><dd>44 ter boulevard Saint-Antoine<br>78150 Le Chesnay-Rocquencourt</dd>
       <dt>Horaires</dt><dd class="hours">Lun 9h00–19h00<br>Mar–Jeu 9h30–19h00<br>Ven 9h30–18h30</dd>
       <dt>Site</dt><dd>cabinetdentairechesnay.fr</dd>
     </dl>
-    <div class="row">
-      <a class="btn" href="https://www.doctolib.fr/orthodontiste/le-chesnay" target="_blank" rel="noopener">Prendre RDV</a>
-      <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=44+ter+boulevard+Saint-Antoine+78150+Le+Chesnay" target="_blank" rel="noopener">Itinéraire</a>
-    </div>
+    <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=44+ter+boulevard+Saint-Antoine+78150+Le+Chesnay" target="_blank" rel="noopener">Itinéraire</a>
+  </div>
+  <div class="card">
+    <h3>Dr Clara Salem Melloul</h3>
+    <p>Villeneuve-le-Roi</p>
+    <a class="btn" href="https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul" target="_blank" rel="noopener">Prendre rendez-vous<small>sur Doctolib</small></a>
   </div>
   <div class="card">
     <h3>Partager l'appli</h3>
