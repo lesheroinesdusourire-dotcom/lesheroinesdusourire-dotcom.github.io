@@ -41,6 +41,14 @@ Liens Doctolib :
 - Dr Johana Lichaa (Le Chesnay-Rocquencourt) : https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa
 - Dr Clara Salem Melloul (Villeneuve-le-Roi) : https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul
 
+## L'équipe d'agents (`.claude/agents/`)
+Pour chaque demande, passer par les bons agents, dans cet ordre :
+1. **contenu-medical** : tout texte destiné aux patients.
+2. **design-ui** : toute modification visuelle ou nouvel écran.
+3. **videos** : liste des épisodes et ajout des liens vidéo.
+4. **verificateur** : toujours, juste avant de publier.
+5. **publication** : seulement après « OK pour publier ».
+
 ## Comment parler à la propriétaire (Dr Johana)
 - Elle n'a jamais codé : expliquer très simplement, mots simples, pas de jargon, étapes courtes une par une.
 - Toujours dire dans quel terminal taper une commande (ex. « le terminal de VS Code : menu Terminal → New Terminal »).
