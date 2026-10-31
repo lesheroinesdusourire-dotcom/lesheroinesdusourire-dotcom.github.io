@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Dixon (dessin provisoire)">
+<circle cx="50" cy="50" r="48" fill="#B5BFCF"/>
+<circle cx="36" cy="44" r="6" fill="#fff"/><circle cx="64" cy="44" r="6" fill="#fff"/>
+<circle cx="37" cy="45" r="3" fill="#222A38"/><circle cx="65" cy="45" r="3" fill="#222A38"/>
+<path d="M36 58q14 12 28 0" fill="none" stroke="#222A38" stroke-width="4" stroke-linecap="round"/>
+<rect x="38" y="70" width="24" height="14" rx="4" fill="#fff" stroke="#222A38" stroke-width="2"/><circle cx="50" cy="77" r="3" fill="#222A38"/>
+</svg>

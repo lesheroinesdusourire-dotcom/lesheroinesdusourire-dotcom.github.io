@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Les Élastiques (dessin provisoire)">
+<circle cx="50" cy="50" r="48" fill="#FFC83D"/>
+<circle cx="36" cy="44" r="6" fill="#fff"/><circle cx="64" cy="44" r="6" fill="#fff"/>
+<circle cx="37" cy="45" r="3" fill="#5A3E00"/><circle cx="65" cy="45" r="3" fill="#5A3E00"/>
+<path d="M36 58q14 12 28 0" fill="none" stroke="#5A3E00" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="50" cy="78" rx="24" ry="7" fill="none" stroke="#C93F30" stroke-width="4"/>
+</svg>

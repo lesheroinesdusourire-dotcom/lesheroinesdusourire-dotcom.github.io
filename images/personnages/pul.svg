@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Le PUL (dessin provisoire)">
+<circle cx="50" cy="50" r="48" fill="#A6E36B"/>
+<circle cx="36" cy="44" r="6" fill="#fff"/><circle cx="64" cy="44" r="6" fill="#fff"/>
+<circle cx="37" cy="45" r="3" fill="#223F07"/><circle cx="65" cy="45" r="3" fill="#223F07"/>
+<path d="M36 58q14 12 28 0" fill="none" stroke="#223F07" stroke-width="4" stroke-linecap="round"/>
+<circle cx="24" cy="76" r="6" fill="#fff" stroke="#223F07" stroke-width="2"/><circle cx="76" cy="76" r="6" fill="#fff" stroke="#223F07" stroke-width="2"/>
+</svg>

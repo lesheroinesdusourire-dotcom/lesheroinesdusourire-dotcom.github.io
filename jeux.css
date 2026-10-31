@@ -1,0 +1,110 @@
+/* Rubrique Jeux : couleurs uniquement en variables de index.html */
+#jeuxApp,.jeu{display:flex;flex-direction:column;gap:16px}
+#jeuxApp>*,.jeu>*{min-width:0}
+.regle{color:var(--muted);font-weight:600}
+.tableau{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px 16px}
+.tableau.score{flex-wrap:wrap}
+.tableau.score span{font-size:.85rem;color:var(--muted);font-weight:700}
+.tableau.score b{display:block;font-family:var(--display);font-size:1.3rem;color:var(--accent)}
+.defi-carte{background:var(--accent);border-color:transparent;color:var(--surface)}
+.defi-carte .eyebrow{color:var(--surface)}
+.mini-etoiles{color:var(--accent)!important;letter-spacing:.1em}
+.choix{display:flex;flex-direction:column;gap:10px}
+.choix.deux{flex-direction:row}
+.choix.deux .btn{flex:1}
+.choix .btn{padding:12px 14px}
+.choix .btn[disabled]{cursor:default}
+.choix .btn.juste{background:var(--ok-soft);color:var(--ok);outline:2px solid var(--ok)}
+.choix .btn.faux{background:var(--alert-soft);color:var(--alert);outline:2px solid var(--alert)}
+.choix .btn[disabled]:not(.juste):not(.faux){opacity:.55}
+.retour{display:flex;flex-direction:column;gap:10px}
+.retour:empty{display:none}
+.retour .ok{background:var(--ok-soft);color:var(--ok);padding:12px 14px;border-radius:14px}
+.retour .non{background:var(--alert-soft);color:var(--alert);padding:12px 14px;border-radius:14px}
+.jokers{display:flex;gap:8px;flex-wrap:wrap}
+.jokers .btn{flex:1 1 120px;font-size:.88rem;padding:9px 10px}
+.jokers .btn[disabled]{opacity:.45;cursor:default}
+.resultat{text-align:center;align-items:stretch}
+.resultat .pill{align-self:center}
+.resultat .photo{width:100%}
+.grandes-etoiles{font-size:2.6rem;line-height:1;color:var(--sun-ink);background:var(--sun);border-radius:18px;padding:10px;letter-spacing:.12em}
+.revoir{text-align:left;display:flex;flex-direction:column;gap:8px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.badge{border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
+.badge span{font-size:1.4rem;line-height:1}
+.badge b{font-family:var(--display);font-weight:600;font-size:.95rem}
+.badge small{font-size:.76rem;line-height:1.3}
+.badge.gagne{background:var(--sun);border-color:transparent;color:var(--sun-ink)}
+
+/* Brossage */
+.bouche{position:relative;display:flex;flex-direction:column;gap:14px;background:var(--accent-soft);border-radius:24px;padding:14px;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden}
+.arcade{display:flex;flex-direction:column;gap:8px}
+.zones{display:grid;gap:8px}
+.zone{position:relative;overflow:hidden;background:var(--surface);border:2px solid var(--line);border-radius:18px;min-height:62px;display:grid;place-items:center;text-align:center;font-weight:700;cursor:grab}
+.zone i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--teal);opacity:.55}
+.zone span{position:relative;font-size:.85rem}
+.zone small{display:block;font-size:.7rem;font-weight:600}
+.zone.allumee{background:var(--sun);border-color:var(--sun);color:var(--sun-ink)}
+.zone.allumee i{display:none}
+.zone.cible{border-color:var(--accent);animation:clignote 1.1s ease-in-out infinite}
+.brosse{position:absolute;left:0;top:0;font-size:2.2rem;line-height:1;opacity:0;pointer-events:none}
+@keyframes clignote{50%{box-shadow:0 0 0 4px var(--accent)}}
+
+/* Aliments */
+.aliment{align-items:center;text-align:center}
+.aliment .choix,.aliment .retour{align-self:stretch}
+.gros{font-size:4rem;line-height:1.1}
+
+/* Devine */
+.detail{width:100%;aspect-ratio:4/3;border-radius:24px;border:1px solid var(--line);background-color:var(--surface);background-repeat:no-repeat}
+
+/* Aligneur */
+.rail{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.case{width:36px;height:36px;border-radius:50%;border:2px dashed var(--muted);display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.case.pleine{background:var(--teal);border:2px solid var(--teal);color:var(--teal-ink)}
+.plateau{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px}
+.aligneur{all:unset;cursor:pointer;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--accent);transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+.aligneur:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.aligneur svg{width:60px;height:38px}
+.aligneur b{color:var(--ink);font-family:var(--display)}
+.aligneur.posee{opacity:.3;cursor:default}
+.aligneur.secoue{animation:secoue .35s}
+@keyframes secoue{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* Memory */
+.memory{display:grid;gap:8px}
+.carte{all:unset;cursor:pointer;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--accent);color:var(--surface);display:grid;place-items:center;text-align:center;font-family:var(--display);transition:transform .25s}
+.carte:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.carte .dos{font-size:1.8rem;font-weight:700}
+.carte .face{display:none;width:100%;height:100%}
+.carte.ouverte{background:var(--surface);color:var(--ink);border:2px solid var(--accent)}
+.carte.ouverte .dos{display:none}
+.carte.ouverte .face{display:grid;place-items:center}
+.carte img{width:100%;height:100%;object-fit:cover}
+.carte b{font-weight:600;font-size:.88rem;padding:4px}
+.carte.trouvee{border-color:var(--ok);opacity:.75;cursor:default}
+
+/* Puzzle */
+.puzzle{display:grid;gap:2px;width:100%;border-radius:18px;overflow:hidden;background:var(--line)}
+.piece{all:unset;cursor:pointer;background-repeat:no-repeat;display:block;min-width:0}
+.piece.choisie{outline:3px solid var(--sun);outline-offset:-3px}
+.piece:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+
+/* Attrape */
+.terrain{position:relative;height:min(56vh,420px);min-height:320px;border-radius:24px;overflow:hidden;background:var(--accent-soft);touch-action:none;user-select:none;-webkit-user-select:none}
+.terrain:focus-visible{outline:3px solid var(--accent)}
+.panier{position:absolute;left:0;bottom:6px;width:56px;text-align:center;font-size:2.6rem;line-height:1;pointer-events:none}
+.objet{position:absolute;top:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:2.2rem;line-height:1;text-align:center;pointer-events:none;will-change:transform}
+.objet small{font-family:var(--body);font-size:.68rem;font-weight:700;background:var(--surface);color:var(--ink);border-radius:99px;padding:1px 7px;white-space:nowrap}
+.retour-at{min-height:2.4em}
+
+/* Roue */
+.roue-cadre{position:relative;width:min(80%,300px);margin:0 auto;padding-top:14px}
+.fleche{position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--accent);font-size:1.5rem;line-height:1;z-index:1}
+.roue{display:block;width:100%;height:auto;transition:transform 3s cubic-bezier(.15,.8,.2,1)}
+#scene{display:flex;flex-direction:column;gap:14px;min-width:0}
+#v-jeux.en-jeu>.scene{display:none}
+#v-jeux.en-jeu .hero{padding-top:0}
+#v-jeux.en-jeu .hero .eyebrow{display:none}
+#v-jeux.en-jeu .hero h2::after{display:none}
+#v-jeux.en-jeu .jeu{gap:12px}

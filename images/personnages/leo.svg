@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Léo la Langue (dessin provisoire)">
+<circle cx="50" cy="50" r="48" fill="#FF7A6B"/>
+<circle cx="36" cy="44" r="6" fill="#fff"/><circle cx="64" cy="44" r="6" fill="#fff"/>
+<circle cx="37" cy="45" r="3" fill="#4A1109"/><circle cx="65" cy="45" r="3" fill="#4A1109"/>
+<path d="M36 58q14 12 28 0" fill="none" stroke="#4A1109" stroke-width="4" stroke-linecap="round"/>
+<path d="M50 50v26" stroke="#C93F30" stroke-width="3" stroke-linecap="round"/><path d="M18 18h14M25 11v14M68 18h14M75 11v14" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+</svg>

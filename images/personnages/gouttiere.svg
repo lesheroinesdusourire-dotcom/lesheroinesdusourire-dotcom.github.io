@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="La Gouttière (dessin provisoire)">
+<circle cx="50" cy="50" r="48" fill="#2CC9B8"/>
+<circle cx="36" cy="44" r="6" fill="#fff"/><circle cx="64" cy="44" r="6" fill="#fff"/>
+<circle cx="37" cy="45" r="3" fill="#06332E"/><circle cx="65" cy="45" r="3" fill="#06332E"/>
+<path d="M36 58q14 12 28 0" fill="none" stroke="#06332E" stroke-width="4" stroke-linecap="round"/>
+<path d="M24 74Q50 90 76 74" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+</svg>

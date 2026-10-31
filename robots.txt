@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /docs/
+Disallow: /tools/
+Disallow: /.claude/
+Disallow: /CLAUDE.md
+
+Sitemap: https://lesheroinesdusourire-dotcom.github.io/sitemap.xml
