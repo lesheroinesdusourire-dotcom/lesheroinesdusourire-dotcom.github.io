@@ -1,10 +1,17 @@
-# Brancher un nom de domaine en .fr
+# Le nom de domaine lesheroinesdusourire.fr
 
-À faire le jour où le nom est acheté (exemple : heroinesdusourire.fr). L'adresse actuelle et l'affiche QR code continueront de marcher : GitHub redirige automatiquement `lesheroinesdusourire-dotcom.github.io` vers le nouveau nom, page par page.
+**Adresse officielle : https://lesheroinesdusourire.fr** (nom acheté chez OVH, branché le 31/10/2026).
 
-1. **Chez le vendeur du nom de domaine** : ajouter les enregistrements DNS indiqués par GitHub dans sa documentation « Managing a custom domain for your GitHub Pages site » (4 lignes de type A, et une ligne CNAME pour `www`).
-2. **Sur GitHub** : dépôt → Settings → Pages → Custom domain → écrire le nom → Save, attendre la vérification, puis cocher « Enforce HTTPS ».
-3. **Dans le projet** : dans `tools/generer_pages.py`, mettre le nouveau nom dans `SITE`. Lancer `python3 tools/generer_pages.py`. Publier.
-4. **Sur Google Search Console** : ajouter le nouveau nom, renvoyer `sitemap.xml`, puis utiliser l'outil « Changement d'adresse ».
+## Comment c'est branché
+- **OVH** : 4 lignes A vers GitHub (185.199.108.153, .109, .110, .111) pour `lesheroinesdusourire.fr`, et les mêmes pour `www`.
+- **GitHub** : Settings → Pages → Custom domain = `lesheroinesdusourire.fr`, et « Enforce HTTPS » à cocher.
+- **Projet** : le fichier `CNAME` contient le nom. Ne jamais le supprimer. Faire `git pull` avant toute modification.
 
-Ne pas supprimer l'ancienne adresse et ne pas réimprimer l'affiche : son QR code reste valable tant que le dépôt GitHub garde le même nom.
+## L'ancienne adresse
+`lesheroinesdusourire-dotcom.github.io` renvoie automatiquement vers le nouveau nom, page par page. L'affiche déjà imprimée reste donc valable, tant que le dépôt GitHub garde le même nom. Ne jamais renommer ni supprimer ce dépôt.
+
+## Si l'adresse change un jour
+1. Dans `tools/generer_pages.py`, changer `SITE`, puis lancer `python3 tools/generer_pages.py`.
+2. Dans `index.html`, changer l'adresse par défaut du QR code (`qrUrl`).
+3. Refaire le QR code et le texte de `affiche.html`, puis `affiche.pdf`.
+4. Sur Google Search Console : ajouter la nouvelle adresse, renvoyer `sitemap.xml`, et utiliser l'outil « Changement d'adresse ».

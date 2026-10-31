@@ -3,8 +3,10 @@
 ## Le projet
 Appli web pour les patients en orthodontie (enfants et adultes), ouverte avec un QR code au cabinet.
 - Docteures : **Dr Johana Lichaa** (Le Chesnay-Rocquencourt et Herblay-sur-Seine) et **Dr Clara Salem Melloul** (Villeneuve-le-Roi).
-- Site en ligne : https://lesheroinesdusourire-dotcom.github.io
+- Adresse officielle : **https://lesheroinesdusourire.fr** (à utiliser partout : QR code, affiche, sitemap, liens).
+- Ancienne adresse : `lesheroinesdusourire-dotcom.github.io`. GitHub la redirige vers le nouveau nom, page par page : l'affiche déjà imprimée reste valable. Ne pas la réutiliser.
 - Dépôt GitHub : `lesheroinesdusourire-dotcom/lesheroinesdusourire-dotcom.github.io` (compte GitHub du cabinet, email lesheroinesdusourire@gmail.com). Le compte `drlichaa` est collaborateur.
+- Nom de domaine : acheté chez OVH (4 lignes A vers GitHub pour le nom et pour `www`), branché sur GitHub Pages. **Le fichier `CNAME` est indispensable : ne jamais le supprimer**, et faire `git pull` avant toute modification. Voir `docs/nom-de-domaine.md`.
 - Hébergement : GitHub Pages, branche `main`, dossier racine. Un `git push` sur `main` met le site à jour en 1 à 2 minutes.
 
 ## Comment c'est construit
@@ -45,17 +47,18 @@ Voir `docs/note-globale.md` (à traiter dans l'ordre) et `docs/exercices-langue.
 - [x] Adresses et téléphones des 2 cabinets (confirmés le 31/10/2026).
 - [ ] Confirmer les horaires du Chesnay, donner ceux de Villeneuve-le-Roi.
 - [ ] Trancher : chrono de 2 minutes dans Mission brossage, alors que la fiche Bagues dit 3 minutes.
-- [ ] Inscrire le site sur Google Search Console.
-- [x] Affiche A5 avec le QR code pour la salle d'attente (`affiche.html`, à mettre aux nouvelles couleurs).
+- [ ] Inscrire `https://lesheroinesdusourire.fr/` sur Google Search Console.
+- [x] Affiche A5 avec le QR code pour la salle d'attente (`affiche.html` et `affiche.pdf`, QR vers le nouveau nom ; à mettre aux nouvelles couleurs).
 - [ ] Faire valider les fiches Bruxisme et Apnée, puis retirer leur badge « Brouillon à valider ».
 - [ ] Ajouter les photos des docteures et les dessins des personnages (`images/`).
 - [ ] Ajouter les kinés et les orthophonistes dans `PARTENAIRES`.
-- [ ] Nom de domaine perso (ex. heroinesdusourire.fr) branché sur GitHub Pages.
+- [x] Nom de domaine lesheroinesdusourire.fr branché sur GitHub Pages.
+- [ ] Cocher « Enforce HTTPS » sur GitHub (Settings → Pages) dès que possible.
+- [ ] Réimprimer l'affiche si souhaité (`affiche.pdf`) : l'ancienne reste valable.
 - [ ] Mettre les vidéos au fur et à mesure dans `EPS`.
 
 ## Plus tard
 - Autres idées de jeux et de contenu : voir `docs/idees-plus-tard.md`.
-- Nom de domaine en .fr : voir `docs/nom-de-domaine.md`.
 - Espace personnel par patient : il demande un hébergeur certifié HDS (données de santé) et une validation juridique, donc pas sur GitHub.
 
 Liens Doctolib :

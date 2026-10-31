@@ -6,7 +6,7 @@ import base64, html, json, os, re, shutil
 from datetime import date
 
 # Pour un nom de domaine : changer cette adresse (voir docs/nom-de-domaine.md).
-SITE = "https://lesheroinesdusourire-dotcom.github.io"
+SITE = "https://lesheroinesdusourire.fr"
 # Code donné par Google Search Console (méthode « Balise HTML »), à coller ici.
 GOOGLE_VERIFICATION = ""
 

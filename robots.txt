@@ -5,4 +5,4 @@ Disallow: /tools/
 Disallow: /.claude/
 Disallow: /CLAUDE.md
 
-Sitemap: https://lesheroinesdusourire-dotcom.github.io/sitemap.xml
+Sitemap: https://lesheroinesdusourire.fr/sitemap.xml

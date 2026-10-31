@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-title" content="Héroïnes du Sourire">
 <title>Les Héroïnes du Sourire : orthodontistes au Chesnay et à Villeneuve-le-Roi</title>
 <meta name="description" content="L'espace patient des Dr Johana Lichaa (Le Chesnay-Rocquencourt) et Dr Clara Salem Melloul (Villeneuve-le-Roi) : fiches des appareils, urgences, exercices de la langue, jeux et rendez-vous Doctolib.">
-<link rel="canonical" href="https://lesheroinesdusourire-dotcom.github.io/">
+<link rel="canonical" href="https://lesheroinesdusourire.fr/">
 <!-- VERIFICATION-GOOGLE --><!-- /VERIFICATION-GOOGLE -->
-<!-- DONNEES-STRUCTUREES --><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Johana Lichaa", "url": "https://lesheroinesdusourire-dotcom.github.io/cabinets/le-chesnay-rocquencourt/", "telephone": "01 61 12 19 40", "address": {"@type": "PostalAddress", "streetAddress": "44 ter boulevard Saint-Antoine", "postalCode": "78150", "addressLocality": "Le Chesnay-Rocquencourt", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.817181, "longitude": 2.124121}, "sameAs": ["https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa"]}, {"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Clara Salem Melloul", "url": "https://lesheroinesdusourire-dotcom.github.io/cabinets/villeneuve-le-roi/", "telephone": "01 49 61 11 11", "address": {"@type": "PostalAddress", "streetAddress": "2 place Louis Jacquard", "postalCode": "94290", "addressLocality": "Villeneuve-le-Roi", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.734077, "longitude": 2.416758}, "sameAs": ["https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul"]}]}</script><!-- /DONNEES-STRUCTUREES -->
+<!-- DONNEES-STRUCTUREES --><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Johana Lichaa", "url": "https://lesheroinesdusourire.fr/cabinets/le-chesnay-rocquencourt/", "telephone": "01 61 12 19 40", "address": {"@type": "PostalAddress", "streetAddress": "44 ter boulevard Saint-Antoine", "postalCode": "78150", "addressLocality": "Le Chesnay-Rocquencourt", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.817181, "longitude": 2.124121}, "sameAs": ["https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa"]}, {"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Clara Salem Melloul", "url": "https://lesheroinesdusourire.fr/cabinets/villeneuve-le-roi/", "telephone": "01 49 61 11 11", "address": {"@type": "PostalAddress", "streetAddress": "2 place Louis Jacquard", "postalCode": "94290", "addressLocality": "Villeneuve-le-Roi", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.734077, "longitude": 2.416758}, "sameAs": ["https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul"]}]}</script><!-- /DONNEES-STRUCTUREES -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
 <style>
@@ -630,7 +630,7 @@ function makeQR(url){
   catch(e){$("#qr").textContent="QR code indisponible"}
 }
 const saved=store.get("qrUrl",null);
-$("#qrUrl").value=saved||"https://lesheroinesdusourire-dotcom.github.io/";
+$("#qrUrl").value=saved||"https://lesheroinesdusourire.fr/";
 $("#qrMake").addEventListener("click",()=>{const u=$("#qrUrl").value.trim();if(u){store.set("qrUrl",u);makeQR(u)}});
 
 /* Docteures : pour une photo, mettre son chemin dans photo (ex. "images/johana-lichaa.jpg") */

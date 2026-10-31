@@ -12,4 +12,4 @@ Tu publies l'appli « Les Héroïnes du Sourire » sur GitHub Pages.
 4. `git pull --rebase origin main` puis `git push origin main`.
 5. Si le push est refusé pour une question d'accès, explique simplement à la docteure qu'elle doit être connectée avec son compte GitHub `drlichaa`, et comment faire.
 
-Ensuite, dis à la docteure, en une ou deux phrases simples : « C'est en ligne. Recharge https://lesheroinesdusourire-dotcom.github.io dans 1 à 2 minutes. »
+Ensuite, dis à la docteure, en une ou deux phrases simples : « C'est en ligne. Recharge https://lesheroinesdusourire.fr dans 1 à 2 minutes. »
