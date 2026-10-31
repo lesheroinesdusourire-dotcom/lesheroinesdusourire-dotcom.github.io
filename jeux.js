@@ -2,11 +2,11 @@
 (function(){
 const D=JEUX_DONNEES,racine=$("#jeuxApp");
 const doux=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
-const reglages={dureeBrossage:120,dureeDefi:60,dureeAttrape:40};
+const reglages={dureeBrossage:180,dureeDefi:60,dureeAttrape:40};
 
 /* Progression */
 const vide={points:0,badges:[],scores:{},joues:[],jour:null,serie:0,defi:{},langue:null};
-function lire(){const p=store.get("jeux",null);return p&&typeof p==="object"?{...vide,...p}:{...vide}}
+function lire(){const p=store.get("jeux",null);if(!p||typeof p!=="object")return{...vide};const o={...vide,...p};o.points=+o.points||0;o.serie=+o.serie||0;["badges","joues"].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[]});["scores","defi"].forEach(k=>{if(!o[k]||typeof o[k]!=="object")o[k]={}});return o}
 let P=lire();
 const sauver=()=>store.set("jeux",P);
 const dateDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -19,17 +19,18 @@ function visiter(){
   if(P.serie>=7)gagnerBadge("serie7");
   sauver();
 }
-const BADGES={
-  premier:["Premier jeu","Vous avez terminé un jeu"],
-  defi:["Défi relevé","Vous avez relevé un défi du jour"],
-  langue:["Langue en forme","Vous avez fait le défi de la langue"],
+window.BADGES_JEUX=Object.assign(window.BADGES_JEUX||{},{
+  premier:["Premier jeu","Un jeu terminé"],
+  defi:["Défi relevé","Un défi du jour relevé"],
+  langue:["Langue en forme","Défi de la langue fait"],
   brossage:["Mission réussie","Toutes les zones sont brossées"],
   quiz:["Expert du quiz","3 étoiles au quiz expert"],
   curieux:["Curieux","5 jeux différents terminés"],
   explorateur:["Explorateur","Les 11 jeux terminés"],
-  serie3:["3 jours de suite","Revenez 3 jours de suite"],
-  serie7:["7 jours de suite","Revenez 7 jours de suite"]
-};
+  serie3:["3 jours de suite","3 jours de suite"],
+  serie7:["7 jours de suite","7 jours de suite"]
+});
+const BADGES=window.BADGES_JEUX;
 function gagnerBadge(id){if(P.badges.includes(id))return false;P.badges.push(id);sauver();return true}
 
 /* Hasard */
@@ -43,6 +44,8 @@ const chaque=(f,ms)=>{const i=setInterval(f,ms);arrets.push(()=>clearInterval(i)
 function quitter(){arrets.forEach(f=>f());arrets=[]}
 const mmss=t=>Math.floor(t/60)+":"+String(t%60).padStart(2,"0");
 const etoilesTxt=n=>"★".repeat(n)+"☆".repeat(3-n);
+/* Photos sans titre : le nom écrit sur la photo donnerait la réponse */
+const imgJeu=a=>"images/appareils/jeux/"+a.id+".jpg";
 const NIV=[["facile","Facile"],["moyen","Moyen"],["expert","Expert"]];
 
 /* Cadre d'un jeu */
@@ -190,7 +193,7 @@ function devine(j,niv){
     const a=liste[i++],autres=melange(APPS.filter(x=>x.id!==a.id)).slice(0,3),ch=melange([a,...autres]);
     const x=30+Math.random()*40,y=30+Math.random()*40;
     s.innerHTML=`<div class="detail" id="detail" role="img" aria-label="Détail de la photo d'un appareil"></div><div id="dq"></div>`;
-    const det=s.querySelector("#detail");det.style.backgroundImage=`url("${a.img}")`;det.style.backgroundSize=zoom+"%";det.style.backgroundPosition=x+"% "+y+"%";
+    const det=s.querySelector("#detail");det.style.backgroundImage=`url("${imgJeu(a)}")`;det.style.backgroundSize=zoom+"%";det.style.backgroundPosition=x+"% "+y+"%";
     const dq=s.querySelector("#dq");
     question(dq,"Quel est cet appareil ?",ch.map(c=>c.nom),ch.indexOf(a),a.nom+" : "+a.sous+". "+a.obj+".",ok=>{if(ok)bon++;suivant()},{
       pied:`<button class="vlink jokers" type="button" id="indice">Voir un indice</button>`,
@@ -224,7 +227,7 @@ function memory(j,niv){
   const n={facile:4,moyen:6,expert:9}[niv],choix=melange(APPS).slice(0,n);
   const s=cadre(j,niv,"Retrouvez les paires : la photo de chaque appareil et son nom.");
   const cartes=melange(choix.flatMap(a=>[{id:a.id,type:"photo",a},{id:a.id,type:"nom",a}]));
-  s.innerHTML=`<div class="tableau"><span class="stars" id="meCoups">0 coup</span></div><div class="memory" style="grid-template-columns:repeat(${n>=9?3:n>=6?3:2},1fr)">${cartes.map((c,i)=>`<button class="carte" type="button" data-i="${i}" aria-label="Carte ${i+1}"><span class="dos" aria-hidden="true">?</span><span class="face">${c.type==="photo"?`<img src="${c.a.img}" alt="Photo : ${esc(c.a.nom)}">`:`<b>${esc(c.a.nom)}</b>`}</span></button>`).join("")}</div>`;
+  s.innerHTML=`<div class="tableau"><span class="stars" id="meCoups">0 coup</span></div><div class="memory" style="grid-template-columns:repeat(${n>=9?3:n>=6?3:2},1fr)">${cartes.map((c,i)=>`<button class="carte" type="button" data-i="${i}" aria-label="Carte ${i+1}"><span class="dos" aria-hidden="true">?</span><span class="face">${c.type==="photo"?`<img src="${imgJeu(c.a)}" alt="Photo : ${esc(c.a.nom)}">`:`<b>${esc(c.a.nom)}</b>`}</span></button>`).join("")}</div>`;
   let ouv=[],coups=0,faites=0,bloque=false;
   s.querySelector(".memory").onclick=e=>{
     const b=e.target.closest("[data-i]");if(!b||bloque||b.classList.contains("ouverte"))return;
@@ -249,7 +252,7 @@ function puzzle(j,niv){
     do{ordre=melange(Array.from({length:total},(_,i)=>i))}while(ordre.every((v,i)=>v===i));
     s.innerHTML=`<div class="puzzle" style="aspect-ratio:${img.naturalWidth}/${img.naturalHeight};grid-template-columns:repeat(${n},1fr)">${ordre.map((v,i)=>`<button type="button" class="piece" data-p="${i}" aria-label="Pièce ${i+1}"></button>`).join("")}</div><p class="stars" id="puCoups">0 échange</p>`;
     const pieces=[...s.querySelectorAll(".piece")];let sel=-1,coups=0;
-    const peindre=()=>pieces.forEach((p,i)=>{const v=ordre[i],x=v%n,y=Math.floor(v/n);p.style.backgroundImage=`url("${a.img}")`;p.style.backgroundSize=n*100+"% "+n*100+"%";p.style.backgroundPosition=(n>1?x/(n-1)*100:0)+"% "+(n>1?y/(n-1)*100:0)+"%";p.classList.toggle("choisie",i===sel)});
+    const peindre=()=>pieces.forEach((p,i)=>{const v=ordre[i],x=v%n,y=Math.floor(v/n);p.style.backgroundImage=`url("${imgJeu(a)}")`;p.style.backgroundSize=n*100+"% "+n*100+"%";p.style.backgroundPosition=(n>1?x/(n-1)*100:0)+"% "+(n>1?y/(n-1)*100:0)+"%";p.classList.toggle("choisie",i===sel)});
     peindre();
     s.querySelector(".puzzle").onclick=e=>{
       const b=e.target.closest("[data-p]");if(!b)return;const i=+b.dataset.p;
@@ -263,7 +266,7 @@ function puzzle(j,niv){
       }
     };
   };
-  img.src=a.img;
+  img.src=imgJeu(a);
 }
 
 /* 8. Vrai ou faux, quiz à niveaux */

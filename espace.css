@@ -1,0 +1,51 @@
+/* Mon espace, première ouverture, fête et recherche. Couleurs en variables de index.html */
+.sans-onglets nav.tabs,.sans-onglets .pages-seo{display:none}
+#v-bienvenue .vlink{align-self:center}
+.app.coche{position:relative;transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+.app.coche[aria-pressed="true"]{outline:4px solid var(--accent);outline-offset:-4px}
+.app.coche[aria-pressed="true"]::after{content:"✓";position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--surface);display:grid;place-items:center;font-weight:700}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.row .btn{min-width:0}
+.moi{display:flex;align-items:center;gap:12px}
+.moi h2::after{display:none}
+.moi h2{overflow-wrap:anywhere;min-width:0}
+.hero .moi h2::after{display:none}
+.avatar{width:64px;height:64px;flex:none;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;overflow:hidden;padding:0}
+.avatar svg{width:42px;height:58px}
+.avatar img{width:100%;height:100%;object-fit:contain}
+.avatars{display:flex;gap:10px;flex-wrap:wrap}
+.choix-av{all:unset;cursor:pointer;width:60px;height:60px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;overflow:hidden;transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+.choix-av[aria-pressed="true"]{outline:4px solid var(--accent)}
+.choix-av:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+.etiquette{font-size:.875rem;font-weight:700;color:var(--muted)}
+.prive{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;resize:vertical}
+label.btn{display:block}
+.efface{align-self:center;color:var(--ink);text-decoration:underline}
+.suivi .btn[disabled]{opacity:.6;cursor:default}
+.stop{background:var(--alert);color:var(--surface);border-radius:18px;padding:16px;font-family:var(--display);font-size:1.25rem;font-weight:600;line-height:1.25}
+.stop b{display:block;font-size:1.9rem;font-weight:700}
+.regle-rdv{font-size:.92rem;font-weight:700;color:var(--muted)}
+.regle-rdv.fort{background:var(--alert-soft);color:var(--alert);padding:10px 12px;border-radius:14px}
+details.rappel{border-radius:18px;background:var(--bg)}
+details.rappel>div{color:var(--ink)}
+.mes-app{display:flex;flex-direction:column;gap:10px}
+.mon-app{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-width:0}
+.mon-app:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mon-app img{width:72px;height:54px;flex:none;object-fit:cover;border-radius:12px;background:#fff}
+.mon-app img.contain{object-fit:contain}
+.mon-app span{display:flex;flex-direction:column;min-width:0}
+.mon-app b{font-family:var(--display);font-weight:600}
+.mon-app small{color:var(--muted);font-size:.82rem;line-height:1.3}
+.recherche{background:var(--surface);border:2px solid var(--alert);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.recherche input{font-size:1rem}
+.pour-toi{order:-1;flex:none;align-self:center;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--sun);color:var(--sun-ink)}
+details.emerg summary{justify-content:flex-start}
+details.emerg summary::after{margin-left:auto}
+.call.vise{outline:4px solid var(--alert);outline-offset:2px}
+.toast{position:fixed;left:0;right:0;margin:0 auto;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:min(92vw,500px);z-index:40;background:var(--accent);color:var(--surface);border-radius:20px;padding:14px 18px;font-family:var(--display);font-weight:600;text-align:center;box-shadow:0 4px 14px var(--ombre);animation:arrive .35s both}
+.toast.grand{top:30%;bottom:auto;font-size:1.3rem;padding:24px;background:var(--sun);color:var(--sun-ink)}
+.confettis{position:fixed;inset:0;z-index:39;pointer-events:none;width:100%;height:100%}
+#v-espace>*{animation:none}
+.app img.mini{width:34px;height:34px;margin-top:calc(100% - 38px);right:6px}
+@media (max-width:350px){nav.tabs button{font-size:.58rem}}
