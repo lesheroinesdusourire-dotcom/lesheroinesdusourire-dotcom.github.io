@@ -29,6 +29,9 @@ Appli web pour les patients en orthodontie (enfants et adultes), ouverte avec un
 - Les infos médicales viennent des documents du cabinet (recommandations du Chesnay, scripts vidéo saison 1). Ne pas inventer de consignes médicales : en cas de doute, demander à la docteure.
 - Personnages des vidéos : Léo la Langue (rose corail, coach), Dixon le disjoncteur (métal), Max le multi-attache (métal ou céramique).
 
+## Demandes en cours
+Voir `docs/note-globale.md` (à traiter dans l'ordre) et `docs/exercices-langue.md` (21 exercices validés).
+
 ## Ce qui reste à faire
 - [x] Ajouter les deux liens Doctolib (voir ci-dessous).
 - [ ] Téléphone du cabinet du Chesnay, confirmer adresse et horaires.
@@ -48,6 +51,7 @@ Pour chaque demande, passer par les bons agents, dans cet ordre :
 3. **videos** : liste des épisodes et ajout des liens vidéo.
 4. **verificateur** : toujours, juste avant de publier.
 5. **publication** : seulement après « OK pour publier ».
+6. **carte-partenaires** : onglet Carte et liste des correspondants.
 
 ## Comment parler à la propriétaire (Dr Johana)
 - Elle n'a jamais codé : expliquer très simplement, mots simples, pas de jargon, étapes courtes une par une.
