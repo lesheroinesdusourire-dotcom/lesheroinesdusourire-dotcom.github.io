@@ -2,7 +2,7 @@
    RÈGLE ABSOLUE : tout reste dans ce téléphone (localStorage). Aucune de ces données n'est envoyée, ni aux statistiques. */
 (function(){
 const doux=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
-const CLES=["profil","ex3","exNiv","al","wear","jeux"];
+const CLES=["profil","ex3","exNiv","al","wear","jeux","langue"];
 const vide={etat:null,prenom:"",appareils:[],avatar:"dent",pose:"",rdv:"",notes:"",suivi:{}};
 function lire(){const p=store.get("profil",null);return p&&typeof p==="object"&&!Array.isArray(p)?{...vide,...p,appareils:Array.isArray(p.appareils)?p.appareils.filter(a=>APPS.some(x=>x.id===a)):[],suivi:p.suivi&&typeof p.suivi==="object"?p.suivi:{}}:{...vide}}
 let P=lire();
@@ -15,7 +15,7 @@ function hygiene(a){const m={bagues:[0,1,2],elastiques:[0],carriere:[1,2]}[a.id]
 const dateDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const auj=()=>dateDe(new Date());
 const dLoc=s=>new Date(s+"T00:00:00");
-const joli=s=>dLoc(s).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+const joli=s=>dLoc(s).toLocaleDateString(LOCALE,{weekday:"long",day:"numeric",month:"long"});
 const ecartJours=(a,b)=>Math.round((dLoc(b)-dLoc(a))/864e5);
 
 /* ─── Fête ─── */
@@ -54,7 +54,7 @@ function afficherBienvenue(){
     <button class="btn ghost" type="button" id="bvVisiteur">Entrer en visiteur</button>
     <p class="note">Pas encore d'appareil ? Entre en visiteur pour découvrir les vidéos, les jeux et la carte.</p>
     <button class="vlink" type="button" id="bvUrgence">Une urgence ? Voir que faire</button>`;
-  $("#bvNom").addEventListener("submit",e=>{e.preventDefault();P.prenom=$("#bvPrenom").value.trim();etape2()});
+  $("#bvNom").addEventListener("submit",e=>{e.preventDefault();P.prenom=$("#bvPrenom").value.trim();try{sessionStorage.setItem("bvPrenom",JSON.stringify(P.prenom))}catch(x){}etape2()});
   $("#bvVisiteur").onclick=()=>{P.etat="visiteur";sauver();entrer("accueil")};
   $("#bvUrgence").onclick=()=>{document.body.classList.remove("sans-onglets");go("urgences")};
   go("bienvenue");
@@ -85,13 +85,14 @@ const ASSAINIR={
     return{etat:["patient","visiteur","aucun","sais-pas"].includes(o.etat)?o.etat:"visiteur",prenom:typeof o.prenom==="string"?o.prenom.slice(0,30):"",appareils:Array.isArray(o.appareils)?o.appareils.filter(a=>APPS.some(x=>x.id===a)):[],avatar:AVATARS.some(a=>a[0]===o.avatar)?o.avatar:"dent",pose:estDate(o.pose)?o.pose:"",rdv:estDate(o.rdv)?o.rdv:"",notes:typeof o.notes==="string"?o.notes.slice(0,2000):"",suivi,rappels,proposer:[]}},
   ex3(o){if(!estObjet(o)||!estDate(o.day)||!estObjet(o.s)||!estObjet(o.c))return null;const s={},c={};EX.forEach(e=>{if(Array.isArray(o.s[e.n]))s[e.n]=o.s[e.n].filter(i=>Number.isInteger(i)&&i>=0&&i<5);if(o.c[e.n]!==undefined)c[e.n]=entier(o.c[e.n],99)});return{day:o.day,s,c,fete:o.fete===true}},
   exNiv(o){return[1,2,3].includes(o)?o:null},
+  langue(o){return["fr","en","es"].includes(o)?o:null},
   al(o){return estObjet(o)&&estDate(o.start)&&[7,10,14].includes(o.days)?{start:o.start,days:o.days,total:entier(o.total,99)||20}:null},
   wear(o){return Array.isArray(o)?o.filter(estDate):null},
-  jeux(o){if(!estObjet(o))return null;const scores={},defi={};if(estObjet(o.scores))Object.keys(o.scores).forEach(k=>{if(/^[a-z]+:[a-z]+$/.test(k))scores[k]=entier(o.scores[k],3)});if(estObjet(o.defi))Object.keys(o.defi).forEach(k=>{if(estDate(k))defi[k]=entier(o.defi[k],99999)});return{points:entier(o.points,9999999),serie:entier(o.serie,99999),badges:Array.isArray(o.badges)?o.badges.filter(b=>BADGES_JEUX[b]):[],joues:Array.isArray(o.joues)?o.joues.filter(mot):[],scores,defi,jour:estDate(o.jour)?o.jour:null,langue:estDate(o.langue)?o.langue:null}}
+  jeux(o){if(!estObjet(o))return null;const records={},defi={};if(estObjet(o.records))Object.keys(o.records).forEach(k=>{if(/^[a-z0-9]{1,30}$/.test(k))records[k]=entier(o.records[k],99999)});if(estObjet(o.defi))Object.keys(o.defi).forEach(k=>{if(estDate(k))defi[k]=entier(o.defi[k],99999)});return{points:entier(o.points,9999999),serie:entier(o.serie,99999),badges:Array.isArray(o.badges)?o.badges.filter(b=>BADGES_JEUX[b]):[],joues:Array.isArray(o.joues)?o.joues.filter(mot):[],records,defi,jour:estDate(o.jour)?o.jour:null,langue:estDate(o.langue)?o.langue:null}}
 };
 function grilleAppareils(sel){return `<div class="apps">${APPS.map(a=>`<button class="app coche" type="button" data-coche="${a.id}" aria-pressed="${sel.includes(a.id)}"><img class="${a.fit}" src="${a.img}" alt="" loading="lazy"><span><b>${esc(a.nom)}</b><small>${esc(a.sous)}</small></span></button>`).join("")}</div>`}
 function basculer(b){b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"))}
-function entrer(v){document.body.classList.remove("sans-onglets");renderAccueil();trierUrgences();go(v)}
+function entrer(v){try{sessionStorage.removeItem("bvPrenom")}catch(x){}document.body.classList.remove("sans-onglets");renderAccueil();trierUrgences();go(v)}
 const aSuivi=()=>P.appareils.some(a=>SUIVIS[a]||a==="gouttieres");
 
 /* ─── Tours de clé ─── */
@@ -196,7 +197,7 @@ function renderEspace(){
     <div class="card"><h3>Mes appareils</h3>${grilleAppareils(P.appareils)}<button class="btn ghost" type="button" id="esApp">Enregistrer mes appareils</button></div>
     <div class="card"><h3>Mes dates</h3><label for="esPose">Date de pose<input id="esPose" type="date" value="${esc(P.pose)}"></label><label for="esRdv">Prochain rendez-vous<input id="esRdv" type="date" value="${esc(P.rdv)}"></label></div>
     <div class="card"><h3>Mes exercices</h3><p class="stars">${faits} exercice${faits>1?"s":""} fait${faits>1?"s":""} aujourd'hui</p><button class="btn ghost" type="button" data-go="langue">Voir mes exercices</button></div>
-    <div class="card"><h3>Mes badges et mes scores</h3><p class="stars">${+j.points||0} points · ${+j.serie||0} jour${(+j.serie||0)>1?"s":""} de suite</p>${badges.length?`<ul class="list">${badges.filter(b=>BADGES_JEUX[b]).map(b=>`<li><span><b>${esc(BADGES_JEUX[b][0])}</b> : ${esc(BADGES_JEUX[b][1])}</span></li>`).join("")}</ul>`:`<p>Pas encore de badge. Lance-toi !</p>`}<button class="btn ghost" type="button" data-go="jeux">Aller aux jeux</button></div>
+    <div class="card"><h3>Mes badges et mes records</h3><p class="stars">${+j.points||0} points · ${+j.serie||0} jour${(+j.serie||0)>1?"s":""} de suite</p>${badges.length?`<ul class="list">${badges.filter(b=>BADGES_JEUX[b]).map(b=>`<li><span><b>${esc(BADGES_JEUX[b][0])}</b> : ${esc(BADGES_JEUX[b][1])}</span></li>`).join("")}</ul>`:`<p>Pas encore de badge. Lance-toi !</p>`}<button class="btn ghost" type="button" data-go="jeux">Aller aux jeux</button></div>
     <div class="card"><label for="esNotes">Mes notes pour le prochain rendez-vous<textarea id="esNotes" rows="4" maxlength="2000"></textarea></label><p class="note">Pas de photo ni d'information sur une autre personne. Tes notes restent sur ce téléphone.</p></div>
     <div class="card"><h3>Sauvegarder ou restaurer</h3><p>Si tu changes de téléphone, garde ce petit fichier. Il contient tes informations : ne le partage pas.</p><button class="btn ghost" type="button" id="esSauve">Sauvegarder</button><label class="btn ghost" for="esFichier">Restaurer<input id="esFichier" type="file" accept=".json,application/json" hidden></label><p class="note" id="esMsg" role="status"></p></div>
     <button class="vlink efface" type="button" id="esEfface">Tout effacer sur ce téléphone</button>`;
@@ -212,7 +213,7 @@ function renderEspace(){
     if(f.size>1e6){msg.textContent="Ce fichier est trop gros.";return}
     f.text().then(t=>{const o=JSON.parse(t);if(!o||o.appli!=="heroines-du-sourire"||!o.donnees||typeof o.donnees!=="object")throw 0;
       CLES.forEach(k=>{if(k in o.donnees){const v=ASSAINIR[k](o.donnees[k]);if(v!==null)store.set(k,v)}});location.reload()}).catch(()=>{msg.textContent="Ce fichier n'est pas une sauvegarde de l'appli. Rien n'a été changé."})};
-  $("#esEfface").onclick=()=>{if(confirm("Tout effacer sur ce téléphone ? Ton prénom, tes appareils, tes suivis et tes badges seront supprimés."))try{CLES.forEach(k=>localStorage.removeItem(k));location.href="#";location.reload()}catch(e){}};
+  $("#esEfface").onclick=()=>{if(confirm(T("Tout effacer sur ce téléphone ? Ton prénom, tes appareils, tes suivis et tes badges seront supprimés.")))try{CLES.forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem("bvPrenom");location.href="#";location.reload()}catch(e){}};
 }
 function rafraichir(){renderAccueil();if(!$("#v-espace").hidden)renderEspace()}
 document.addEventListener("click",e=>{
@@ -220,7 +221,7 @@ document.addEventListener("click",e=>{
   if(a){P.avatar=a.dataset.av;sauver();rafraichir();return}
   if(tr){const id=tr.dataset.tour,s=etatSuivi(id);s.tours.push(auj());sauver();rafraichir();
     if(s.prevu&&s.tours.length>=s.prevu)toast("Stop ! Plus de tour de clé avant ton rendez-vous.",true);else toast(SUIVIS[id].jours===1?"Tour de clé noté. C'est tout pour aujourd'hui !":"Tour de clé noté. C'est tout pour cette semaine !");return}
-  if(an){const s=etatSuivi(an.dataset.annule);if(confirm("Annuler le dernier tour de clé ?")){s.tours.pop();sauver();rafraichir()}return}
+  if(an){const s=etatSuivi(an.dataset.annule);if(confirm(T("Annuler le dernier tour de clé ?"))){s.tours.pop();sauver();rafraichir()}return}
   if(vi){etatSuivi(vi.dataset.vis).vis=true;(P.proposer=P.proposer||[]).push(vi.dataset.vis);sauver();rafraichir();return}
   if(mo){const i=mo.closest(".rappel").querySelector("input[type=time]");if(i)i.value=mo.dataset.h;mo.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b===mo)));return}
   if(ra){const id=ra.dataset.rappel,h=ra.closest(".rappel").querySelector("input[type=time]").value||"19:00",c=fichierICS(id,h);if(!c)return;(P.rappels=P.rappels||{})[id]=h;P.proposer=(P.proposer||[]).filter(x=>x!==id);sauver();telecharger(c,"rappel-"+id+".ics","text/calendar;charset=utf-8");return}
@@ -246,7 +247,7 @@ function scoreMot(q,mots){let m=0;for(const w of mots){if(w===q)return 3;if(q.le
 let lignesUrg=[];
 function preparerUrgences(){
   const pile=$("#v-urgences .stack");
-  lignesUrg=[...pile.querySelectorAll("details.emerg")].map((el,i)=>({el,i,mots:[...new Set(norm(URG[i].mots+" "+el.querySelector("summary").textContent).split(" "))],apps:URG[i].apps}));
+  lignesUrg=[...pile.querySelectorAll("details.emerg")].map((el,i)=>({el,i,mots:[...new Set(norm((window.RECHERCHE?RECHERCHE.urg[i]+" ":"")+URG[i].mots+" "+T(el.querySelector("summary").textContent)).split(" "))],apps:URG[i].apps}));
   const box=document.createElement("div");box.className="recherche";
   box.innerHTML=`<label for="urgQ">Que se passe-t-il ? Tapez un mot.<input id="urgQ" type="search" autocomplete="off" placeholder="Fil, bague, perdu, mal…"></label><p class="note" id="urgMsg" role="status" hidden></p>`;
   pile.before(box);
@@ -259,15 +260,17 @@ const AUTRES=["plaque","activateur","pul","eln","masque","elastique","elastiques
 const GRAVES=norm("choc coup accident gonfle gonflement gonflee gonfler visage fievre").split(" ");
 const CALL=norm("choc coup accident gonfle gonflement gonflee visage fievre nuit soir week end ferie urgence").split(" ");
 function chercher(txt){
-  const qs=norm(txt).split(" ").filter(w=>w&&!NOIR.has(w)),msg=$("#urgMsg"),call=$("#v-urgences .call");
+  const qs=norm(txt).split(" ").filter(w=>w&&!NOIR.has(w)&&!(window.RECHERCHE&&RECHERCHE.vides.includes(w))),msg=$("#urgMsg"),call=$("#v-urgences .call");
   call.classList.remove("vise");
   if(!qs.length){lignesUrg.forEach(l=>{l.el.hidden=false;l.el.open=false;l.el.querySelector("summary");});msg.hidden=true;trierUrgences();return}
   const mes=lire().appareils,miens=l=>l.apps&&l.apps.some(a=>mes.includes(a));
   /* À score égal : d'abord ses appareils, puis la réponse générale */
-  const notes=lignesUrg.map(l=>{const b=qs.reduce((t,q)=>t+scoreMot(q,l.mots),0);const sansConsigne=l.i===2&&qs.some(q=>AUTRES.includes(q));return{l,s:b&&!sansConsigne?b+(l.apps?0:.5)+(miens(l)?(l.i===4?.75:.25):0):0}});
+  const notes=lignesUrg.map(l=>{const b=qs.reduce((t,q)=>t+scoreMot(q,l.mots),0);const sansConsigne=l.i===2&&qs.some(q=>AUTRES.includes(q)||(window.RECHERCHE&&RECHERCHE.autres.includes(q)));return{l,s:b&&!sansConsigne?b+(l.apps?0:.5)+(miens(l)?(l.i===4?.75:.25):0):0}});
   const max=Math.max(...notes.map(n=>n.s));
-  const vraie=qs.reduce((t,q)=>t+(q.length>=4||CALL.includes(q)?scoreMot(q,CALL):0),0);
-  const grave=qs.some(q=>q.length>=3&&GRAVES.some(g=>g===q||(q.length>=4&&g.startsWith(q))))||(qs.includes("dent")||qs.includes("dents"))&&qs.some(q=>/^(cass|tomb)/.test(q));
+  const appel=window.RECHERCHE?[...CALL,...RECHERCHE.call]:CALL,graves=window.RECHERCHE?[...GRAVES,...RECHERCHE.graves]:GRAVES;
+  const vraie=qs.reduce((t,q)=>t+(q.length>=4||appel.includes(q)?scoreMot(q,appel):0),0);
+  const dentCassee=window.RECHERCHE?new RegExp(RECHERCHE.dentCassee):null;
+  const grave=qs.some(q=>q.length>=3&&graves.some(g=>g===q||(q.length>=4&&g.startsWith(q))))||(qs.includes("dent")||qs.includes("dents"))&&qs.some(q=>/^(cass|tomb)/.test(q))||(dentCassee&&dentCassee.test(norm(txt)));
   notes.forEach(n=>{n.l.el.hidden=n.s===0;n.l.el.open=false});
   if(max>0&&!grave)notes.filter(n=>n.s===max).sort((a,b)=>a.l.i-b.l.i)[0].l.el.open=true;
   if(vraie>0||grave)call.classList.add("vise");
@@ -282,21 +285,26 @@ function trierUrgences(){
 }
 
 /* ─── Démarrage ─── */
-window.BADGES_JEUX=Object.assign(window.BADGES_JEUX||{},{premier:["Premier jeu","Un jeu terminé"],
+window.BADGES_JEUX={
+  premier:["Premier jeu","Un jeu terminé"],
   defi:["Défi relevé","Un défi du jour relevé"],
   langue:["Langue en forme","Défi de la langue fait"],
-  brossage:["Mission réussie","Toutes les zones sont brossées"],
-  quiz:["Expert du quiz","3 étoiles au quiz expert"],
-  curieux:["Curieux","5 jeux différents terminés"],
-  explorateur:["Explorateur","Les 11 jeux terminés"],
+  journee:["Journée parfaite","Tous les exercices du jour sont faits"],
+  brillant:["Sourire brillant","Toutes les dents nettoyées"],
+  quiz:["Quiz malin","10 bonnes réponses sur 10"],
+  puzzle:["Maître du puzzle","Le puzzle de 25 pièces terminé"],
+  record:["Nouveau record","Un record personnel battu"],
+  curieux:["Curieux","4 jeux différents terminés"],
+  explorateur:["Explorateur","Tous les jeux terminés"],
   serie3:["3 jours de suite","3 jours de suite"],
-  serie7:["7 jours de suite","7 jours de suite"],
-  journee:["Journée parfaite","Tous les exercices du jour sont faits"]});
+  serie7:["7 jours de suite","7 jours de suite"]
+};
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("#v-bienvenue").hidden)return;if(!document.hidden)rafraichir()});
-window.Espace={trierUrgences,bravo,journee,renderEspace,renderAccueil,afficherBienvenue,fichierICS,chercher,toast};
+window.Espace={confettis,trierUrgences,bravo,journee,renderEspace,renderAccueil,afficherBienvenue,fichierICS,chercher,toast};
 preparerUrgences();renderAccueil();
 const h=location.hash.slice(1);
-if(!lire().etat&&(!h||h==="accueil"))afficherBienvenue();
+let brouillon=null;try{brouillon=JSON.parse(sessionStorage.getItem("bvPrenom"))}catch(x){}
+if(!lire().etat&&(!h||h==="accueil"||h==="bienvenue")){afficherBienvenue();if(typeof brouillon==="string"){P.prenom=brouillon.slice(0,30);etape2()}}
 else if(h==="espace")renderEspace();
 else if(h==="bienvenue")go("accueil");
 })();

@@ -1,35 +1,21 @@
-/* Rubrique Jeux. Textes dans jeux-donnees.js, photos et consignes dans APPS et EX (index.html). Progression gardée sur le téléphone. */
+/* Rubrique Jeux. Textes dans jeux-donnees.js, photos et noms dans APPS. Records et badges gardés sur le téléphone. */
 (function(){
 const D=JEUX_DONNEES,racine=$("#jeuxApp");
 const doux=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
-const reglages={dureeBrossage:180,dureeDefi:60,dureeAttrape:40};
+const reglages={dureeNettoyage:180,dureeQuiz:90,dureeVF:60,dureeAliments:60,dureePlaque:45,dureeAttrape:45,dureeChrono:60};
+const imgJeu=a=>"images/appareils/jeux/"+a.id+".jpg";
+/* Photos pour Le grand nettoyage et Tape la plaque : [gauche, haut, largeur, hauteur] de la partie gardée */
+const SCENES=[{nom:"Les dents",img:"images/appareils/jeux/pul.jpg",cadre:[.03,.05,.33,.9]},{nom:"Les bagues",img:"images/appareils/jeux/elastiques.jpg",cadre:[.04,.1,.92,.8],attaches:true},{nom:"La gouttière",img:"images/appareils/jeux/gouttieres.jpg",cadre:[.14,.25,.76,.5]}];
 
 /* Progression */
-const vide={points:0,badges:[],scores:{},joues:[],jour:null,serie:0,defi:{},langue:null};
-function lire(){const p=store.get("jeux",null);if(!p||typeof p!=="object")return{...vide};const o={...vide,...p};o.points=+o.points||0;o.serie=+o.serie||0;["badges","joues"].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[]});["scores","defi"].forEach(k=>{if(!o[k]||typeof o[k]!=="object")o[k]={}});return o}
+const vide={points:0,badges:[],records:{},joues:[],jour:null,serie:0,defi:{},langue:null};
+function lire(){const p=store.get("jeux",null);if(!p||typeof p!=="object")return{...vide};const o={...vide,...p};o.points=+o.points||0;o.serie=+o.serie||0;["badges","joues"].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[]});["records","defi"].forEach(k=>{if(!o[k]||typeof o[k]!=="object")o[k]={}});return o}
 let P=lire();
 const sauver=()=>store.set("jeux",P);
 const dateDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const auj=()=>dateDe(new Date());
 const hier=()=>{const d=new Date();d.setDate(d.getDate()-1);return dateDe(d)};
-function visiter(){
-  if(P.jour===auj())return;
-  P.serie=P.jour===hier()?P.serie+1:1;P.jour=auj();
-  if(P.serie>=3)gagnerBadge("serie3");
-  if(P.serie>=7)gagnerBadge("serie7");
-  sauver();
-}
-window.BADGES_JEUX=Object.assign(window.BADGES_JEUX||{},{
-  premier:["Premier jeu","Un jeu terminé"],
-  defi:["Défi relevé","Un défi du jour relevé"],
-  langue:["Langue en forme","Défi de la langue fait"],
-  brossage:["Mission réussie","Toutes les zones sont brossées"],
-  quiz:["Expert du quiz","3 étoiles au quiz expert"],
-  curieux:["Curieux","5 jeux différents terminés"],
-  explorateur:["Explorateur","Les 11 jeux terminés"],
-  serie3:["3 jours de suite","3 jours de suite"],
-  serie7:["7 jours de suite","7 jours de suite"]
-});
+function visiter(){if(P.jour===auj())return;P.serie=P.jour===hier()?P.serie+1:1;P.jour=auj();if(P.serie>=3)gagnerBadge("serie3");if(P.serie>=7)gagnerBadge("serie7");sauver()}
 const BADGES=window.BADGES_JEUX;
 function gagnerBadge(id){if(P.badges.includes(id))return false;P.badges.push(id);sauver();return true}
 
@@ -38,399 +24,332 @@ const melange=(l,r=Math.random)=>{const a=[...l];for(let i=a.length-1;i>0;i--){c
 function graine(s){let h=1779033703;for(const c of s)h=Math.imul(h^c.charCodeAt(0),3432918353);return()=>{h=Math.imul(h^(h>>>15),2246822507);h=Math.imul(h^(h>>>13),3266489909);h^=h>>>16;return(h>>>0)/4294967296}}
 
 /* Minuteries du jeu en cours : toutes arrêtées quand on quitte */
-let arrets=[],jeuEnCours=null;
+let arrets=[];
 const apres=(f,ms)=>{const i=setTimeout(f,ms);arrets.push(()=>clearTimeout(i));return i};
 const chaque=(f,ms)=>{const i=setInterval(f,ms);arrets.push(()=>clearInterval(i));return i};
+const image=f=>{let r=0;const b=t=>{f(t);r=requestAnimationFrame(b)};r=requestAnimationFrame(b);arrets.push(()=>cancelAnimationFrame(r))};
 function quitter(){arrets.forEach(f=>f());arrets=[]}
-const mmss=t=>Math.floor(t/60)+":"+String(t%60).padStart(2,"0");
+const mmss=t=>Math.floor(t/60)+":"+String(Math.max(0,t)%60).padStart(2,"0");
 const etoilesTxt=n=>"★".repeat(n)+"☆".repeat(3-n);
-/* Photos sans titre : le nom écrit sur la photo donnerait la réponse */
-const imgJeu=a=>"images/appareils/jeux/"+a.id+".jpg";
-const NIV=[["facile","Facile"],["moyen","Moyen"],["expert","Expert"]];
+const pl=(n,s,p)=>n+" "+(n>1?p:s);
 
-/* Cadre d'un jeu */
-function cadre(j,niv,regle){
+/* Chrono visible à rebours. Il sert aussi à accélérer le jeu. */
+function chrono(el,duree,fin){let reste=duree;el.textContent=mmss(reste);chaque(()=>{reste--;el.textContent=mmss(reste);if(reste<=0)fin()},1000);return{reste:()=>reste,ecoule:()=>duree-reste}}
+
+function cadre(j,regle){
   $("#v-jeux").classList.add("en-jeu");
   racine.innerHTML=`<div class="jeu"><button class="back" type="button" data-menu>← Tous les jeux</button>
-    <div class="hero"><span class="eyebrow">Jeu</span><h2>${esc(j.nom)}</h2></div>
-    ${j.niveaux?`<div class="seg" role="group" aria-label="Choisir le niveau">${NIV.map(([k,l])=>`<button type="button" data-niveau="${k}" aria-pressed="${k===niv}">${l}</button>`).join("")}</div>`:""}
-    <p class="regle">${esc(regle)}</p><div id="scene"></div></div>`;
+    <div class="hero"><h2>${esc(j.nom)}</h2></div><p class="regle">${esc(regle)}</p><div id="scene"></div></div>`;
   window.scrollTo(0,0);
   return racine.querySelector("#scene");
 }
-function finir(j,niv,etoiles,points,message,extra=""){
+/* Écran de fin : record personnel, jamais de classement */
+function finir(j,opts){
   quitter();
-  const cle=j.id+":"+niv;
-  P.scores[cle]=Math.max(P.scores[cle]||0,etoiles);
+  const{score,unite="points",plusPetit=false,etoiles=0,points=0,message,extra="",cle=j.id}=opts;
+  const ancien=P.records[cle];
+  const record=score!==undefined&&score>0&&(ancien===undefined||(plusPetit?score<ancien:score>ancien));
+  const avant=[...P.badges];
+  if(record)P.records[cle]=score;
   P.points+=points;
   if(!P.joues.includes(j.id))P.joues.push(j.id);
-  const avant=[...P.badges];
   gagnerBadge("premier");
-  if(P.joues.length>=5)gagnerBadge("curieux");
+  if(record&&ancien!==undefined)gagnerBadge("record");
+  if(P.joues.length>=4)gagnerBadge("curieux");
   if(P.joues.length>=CATALOGUE.length)gagnerBadge("explorateur");
-  if(j.id==="quiz"&&niv==="expert"&&etoiles===3)gagnerBadge("quiz");
-  if(j.id==="brossage"&&etoiles===3)gagnerBadge("brossage");
-  if(j.id==="defi")gagnerBadge("defi");
+  (opts.badges||[]).forEach(gagnerBadge);
   sauver();
   const neufs=P.badges.filter(b=>!avant.includes(b));
+  const aff=v=>plusPetit?mmss(v):v+" "+unite;
   const s=racine.querySelector("#scene")||racine;
   s.innerHTML=`<div class="card resultat"><p class="grandes-etoiles" aria-label="${etoiles} étoiles sur 3">${etoilesTxt(etoiles)}</p>
-    <h3>${esc(message)}</h3><p class="stars">+${points} points</p>
+    <h3>${esc(message)}</h3>
+    ${record?`<p class="pill now">Nouveau record !</p>`:P.records[cle]!==undefined?`<p class="stars">Ton record : ${esc(aff(P.records[cle]))}</p>`:""}
+    ${points?`<p class="stars">+${points} points</p>`:""}
     ${neufs.map(b=>`<p class="pill now">Nouveau badge : ${esc(BADGES[b][0])}</p>`).join("")}${extra}
-    <button class="btn" type="button" data-rejouer>Rejouer</button><button class="btn ghost" type="button" data-menu>Tous les jeux</button></div>`;
-  s.querySelector("[data-rejouer]").onclick=()=>lancer(j.id,niv);
+    <button class="btn" type="button" data-rejouer>Rejouer</button><button class="btn ghost" type="button" data-menu>Tous les jeux</button>
+    <p class="note">Les jeux ne remplacent jamais l'avis de ta docteure.</p></div>`;
+  s.querySelector("[data-rejouer]").onclick=()=>lancer(j.id,opts.rejouer);
+  if((etoiles>=2||opts.fete)&&window.Espace)Espace.confettis(record?120:60);
+  window.scrollTo(0,0);
 }
-function etoilesDe(bon,total){const r=total?bon/total:0;return r>=.9?3:r>=.6?2:r>0?1:0}
+const etoilesDe=(b,t)=>{const r=t?b/t:0;return r>=.9?3:r>=.6?2:r>0?1:0};
+const persoImg=q=>`images/personnages/${q==="leo"?"leo":"max"}.svg`;
 
-/* Une question à choix, partagée par plusieurs jeux */
-function question(el,q,choix,bonne,explication,suite,opts={}){
-  el.innerHTML=`<div class="card"><h3>${esc(q)}</h3><div class="choix">${choix.map((c,i)=>`<button class="btn ghost" type="button" data-c="${i}">${esc(c)}</button>`).join("")}</div>${opts.pied||""}<div class="retour" aria-live="polite"></div></div>`;
-  el.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.c,ok=i===bonne;
-    el.querySelectorAll("[data-c]").forEach(x=>{x.disabled=true;const n=+x.dataset.c;if(n===bonne)x.classList.add("juste");else if(n===i)x.classList.add("faux")});
-    if(opts.pied)el.querySelector(".jokers")?.remove();
-    const r=el.querySelector(".retour");
-    r.innerHTML=`<p class="${ok?"ok":"non"}"><b>${ok?"Bravo !":"Pas tout à fait."}</b> ${esc(explication)}</p><button class="btn" type="button" data-suite>Continuer</button>`;
-    r.querySelector("[data-suite]").onclick=()=>suite(ok);
-    if(opts.choisi)opts.choisi(ok);
-  });
-}
-const compteur=(el,txt)=>{el.textContent=txt};
-const pl=(n,sing,plur)=>n+" "+(n>1?plur:sing);
-
-/* 1. Mission brossage */
-function brossage(j,niv){
-  const faces=["Dehors","Dedans","Dessus"],cotes=niv==="facile"?[""]:["gauche","droite"];
-  const zones=[];
-  ["Haut","Bas"].forEach(a=>cotes.forEach(c=>faces.forEach(f=>zones.push({a,c,f,p:0}))));
-  const ordre=niv==="expert";
-  const s=cadre(j,niv,"Faites glisser la brosse sur chaque zone jusqu'à ce qu'elle s'allume : dehors, dedans et dessus, en haut et en bas."+(ordre?" Niveau expert : suivez la zone entourée.":""));
-  const duree=reglages.dureeBrossage,besoin=duree/zones.length*.85;
-  const groupe=a=>`<div class="arcade"><b>Dents du ${a==="Haut"?"haut":"bas"}</b><div class="zones" style="grid-template-columns:repeat(3,1fr)">${zones.map((z,i)=>z.a===a?`<div class="zone" data-z="${i}" tabindex="0" role="button" aria-label="${z.f} ${z.a} ${z.c}"><i></i><span>${z.f}${z.c?`<small>${z.c}</small>`:""}</span></div>`:"").join("")}</div></div>`;
-  s.innerHTML=`<div class="tableau"><span class="timer" id="brChrono">${mmss(duree)}</span><span class="stars" id="brFaites">0 / ${zones.length}</span></div>
-    <div class="bouche" id="bouche">${groupe("Haut")}${groupe("Bas")}<div class="brosse" id="brosse" aria-hidden="true">🪥</div></div>`;
-  const bouche=s.querySelector("#bouche"),brosse=s.querySelector("#brosse");
-  s.scrollIntoView({block:"start"});
-  let reste=duree,fin=false,dernier=0,cible=-1;
-  const prochaine=()=>zones.findIndex(z=>z.p<1);
-  function maj(){
-    const cur=prochaine();
-    s.querySelectorAll(".zone").forEach((el,i)=>{const z=zones[i];el.querySelector("i").style.width=Math.min(z.p,1)*100+"%";el.classList.toggle("allumee",z.p>=1);el.classList.toggle("cible",ordre&&i===cur)});
-    compteur(s.querySelector("#brFaites"),zones.filter(z=>z.p>=1).length+" / "+zones.length);
-  }
-  function terminer(){
-    if(fin)return;fin=true;
-    const n=zones.filter(z=>z.p>=1).length;
-    finir(j,niv,n===zones.length?3:Math.min(2,etoilesDe(n,zones.length)),n*5,n===zones.length?"Mission réussie : tout est propre !":"Le temps est écoulé : "+pl(n,"zone","zones")+" sur "+zones.length+".");
-  }
-  function frotter(i,dt){
-    if(fin||i<0||(ordre&&i!==prochaine()))return;
-    zones[i].p+=dt/besoin;maj();
-    if(prochaine()<0)terminer();
-  }
-  bouche.addEventListener("pointermove",e=>{
-    const r=bouche.getBoundingClientRect();
-    brosse.style.transform=`translate(${e.clientX-r.left-18}px,${e.clientY-r.top-18}px)`;brosse.style.opacity=1;
-    const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(".zone");
-    cible=el?+el.dataset.z:-1;dernier=performance.now();
-    e.preventDefault();
-  });
-  bouche.addEventListener("pointerdown",e=>{if(e.target.hasPointerCapture&&e.target.hasPointerCapture(e.pointerId))e.target.releasePointerCapture(e.pointerId)});
-  bouche.addEventListener("pointerleave",()=>{cible=-1});
-  /* Au clavier : maintenir Entrée sur une zone */
-  bouche.addEventListener("keydown",e=>{const el=e.target.closest(".zone");if(el&&(e.key==="Enter"||e.key===" ")){e.preventDefault();cible=+el.dataset.z;dernier=performance.now()}});
-  chaque(()=>{if(cible>=0&&performance.now()-dernier<500)frotter(cible,.1)},100);
-  chaque(()=>{reste--;compteur(s.querySelector("#brChrono"),mmss(reste));if(reste<=0)terminer()},1000);
-  maj();
+/* Une explication dite par un personnage, puis on continue */
+function expliquer(el,ok,txt,qui,suite){
+  el.innerHTML=`<div class="bulle ${ok?"ok":"non"}" role="status"><img src="${persoImg(qui)}" alt=""><p><b>${ok?"Bravo !":"Pas tout à fait."}</b> ${esc(txt)}</p></div><button class="btn" type="button" data-suite>Continuer</button>`;
+  el.querySelector("[data-suite]").onclick=suite;
 }
 
-/* 2. Sauve tes bagues ! */
-function bagues(j,niv){
-  const temps={facile:7,moyen:5,expert:3}[niv],liste=melange(D.aliments);
-  const s=cadre(j,niv,"Gardez ce qui ne risque rien pour vos bagues. Écartez ce que nos fiches déconseillent.");
-  let i=0,vies=3,bon=0;
-  function suivant(){
-    quitter();
-    if(i>=liste.length||vies<=0)return finir(j,niv,vies<=0?Math.min(1,bon):etoilesDe(bon,liste.length),bon*5,vies<=0?"Vos bagues ont besoin de vous : réessayez !":"Vos bagues sont sauvées : "+pl(bon,"bonne réponse","bonnes réponses")+".");
-    const a=liste[i++];let reste=temps*10,fini=false;
-    s.innerHTML=`<div class="tableau"><span class="stars" aria-label="${vies} vies">${"♥".repeat(vies)}${"♡".repeat(3-vies)}</span><span class="stars">${i} / ${liste.length}</span></div>
-      <div class="meter"><i id="bgT" style="width:100%"></i></div>
-      <div class="card aliment"><div class="gros" aria-hidden="true">${a.emoji}</div><h3>${esc(a.nom)}</h3>
-      <div class="choix deux"><button class="btn" type="button" data-g="1">Je garde</button><button class="btn sun" type="button" data-g="0">J'écarte</button></div><div class="retour" aria-live="polite"></div></div>`;
-    const repondre=g=>{
-      if(fini)return;fini=true;quitter();
-      const ok=g===a.bon;if(ok)bon++;else vies--;
-      s.querySelectorAll("[data-g]").forEach(b=>b.disabled=true);
-      const r=s.querySelector(".retour");
-      r.innerHTML=`<p class="${ok?"ok":"non"}"><b>${g===null?"Trop tard !":ok?"Bravo !":"Attention."}</b> ${esc(a.pourquoi)}</p><button class="btn" type="button" data-suite>Continuer</button>`;
-      r.querySelector("[data-suite]").onclick=suivant;
-    };
-    s.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>repondre(b.dataset.g==="1"));
-    chaque(()=>{reste--;s.querySelector("#bgT").style.width=reste/(temps*10)*100+"%";if(reste<=0)repondre(null)},100);
-  }
-  suivant();
+/* 1. Le grand nettoyage */
+function nettoyage(j,num=0){
+  const sc=SCENES[num%SCENES.length];
+  const s=cadre(j,"Frotte les dents avec le doigt, comme une brosse. Cherche bien partout"+(sc.attaches?", surtout autour des attaches":"")+" : il y a des zones cachées.");
+  s.innerHTML=`<div class="seg" role="group" aria-label="Choisir la photo">${SCENES.map((x,i)=>`<button type="button" data-sc="${i}" aria-pressed="${i===num}">${esc(x.nom)}</button>`).join("")}</div>
+    <div class="tableau"><span class="timer" id="t">${mmss(reglages.dureeNettoyage)}</span><span class="stars" id="pc">0 %</span></div>
+    <div class="photo-jeu" id="zone"><img id="ph" alt="" src="${sc.img}"><canvas id="sale" aria-label="Dents à nettoyer"></canvas></div>`;
+  s.querySelectorAll("[data-sc]").forEach(b=>b.onclick=()=>{quitter();nettoyage(j,+b.dataset.sc)});
+  const ph=s.querySelector("#ph");
+  const pret=()=>{
+    if(!s.isConnected||!s.querySelector("#sale"))return;
+    const zone=s.querySelector("#zone"),c=s.querySelector("#sale"),[fx,fy,fw,fh]=sc.cadre;
+    const W=zone.clientWidth,H=Math.round(W*(ph.naturalHeight*fh)/(ph.naturalWidth*fw));
+    zone.style.height=H+"px";
+    ph.style.width=(W/fw)+"px";ph.style.left=(-fx*W/fw)+"px";ph.style.top=(-fy*H/fh)+"px";
+    c.width=W;c.height=H;
+    zone.scrollIntoView({block:"center"});
+    const g=c.getContext("2d",{willReadFrequently:true});
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    /* Plaque : voile jaune tacheté, avec des bouts de nourriture */
+    for(let i=0;i<220;i++){g.fillStyle=`rgba(${rnd(205,235)|0},${rnd(180,205)|0},${rnd(95,135)|0},${rnd(.5,.85)})`;g.beginPath();g.ellipse(rnd(0,W),rnd(H*.08,H*.92),rnd(16,46),rnd(12,32),rnd(0,3),0,7);g.fill()}
+    for(let i=0;i<46;i++){g.fillStyle=["#7A4A23","#A9743A","#3E7B3A","#C9472F","#E8D9A8"][i%5];g.beginPath();g.ellipse(rnd(8,W-8),rnd(H*.1,H*.9),rnd(2,7),rnd(2,5),rnd(0,3),0,7);g.fill()}
+    /* Zones cachées : plus épaisses, il faut repasser */
+    for(let i=0;i<(sc.attaches?14:8);i++){const x=rnd(.08,.92)*W,y=sc.attaches?(i%2?.38:.62)*H+rnd(-10,10):rnd(.2,.8)*H;g.fillStyle="rgba(190,160,80,.97)";g.beginPath();g.arc(x,y,rnd(11,17),0,7);g.fill()}
+    const restant=()=>{const d=g.getImageData(0,0,W,H).data;let n=0;for(let i=3;i<d.length;i+=32)n+=d[i];return n};
+    const total=restant()||1;
+    let fin=false,dernier=null;
+    const pcEl=s.querySelector("#pc");
+    const propre=()=>Math.min(100,Math.round((1-restant()/total)*100/.98));
+    const fr=(x,y)=>{g.globalCompositeOperation="destination-out";g.lineCap="round";g.lineWidth=Math.max(26,W*.085);g.strokeStyle="rgba(0,0,0,.42)";g.beginPath();g.moveTo(dernier?dernier[0]:x,dernier?dernier[1]:y);g.lineTo(x+.01,y);g.stroke();g.globalCompositeOperation="source-over";dernier=[x,y]};
+    const pos=e=>{const r=c.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+    c.addEventListener("pointerdown",e=>{e.preventDefault();try{c.setPointerCapture(e.pointerId)}catch(x){}dernier=null;fr(...pos(e))});
+    c.addEventListener("pointermove",e=>{if(e.buttons||e.pointerType==="touch"){e.preventDefault();fr(...pos(e))}});
+    c.addEventListener("pointerup",()=>{dernier=null});
+    c.addEventListener("pointercancel",()=>{dernier=null});
+    const cl=chrono(s.querySelector("#t"),reglages.dureeNettoyage,()=>clore());
+    function clore(){if(fin)return;fin=true;const p=propre();
+      finir(j,{score:p,cle:"nettoyage"+num,unite:"%",etoiles:p>=99?3:p>=80?2:p>0?1:0,points:p,badges:p>=99?["brillant"]:[],rejouer:num,message:p>=99?"Tes dents brillent !":p+" % nettoyé. Il reste des zones cachées.",extra:`<p class="note">En vrai aussi : brosse-toi 3 minutes après chaque repas.</p>`})}
+    chaque(()=>{const p=propre();pcEl.textContent=p+" %";if(p>=99)clore()},400);
+  };
+  if(ph.complete&&ph.naturalWidth)pret();else ph.onload=pret;
 }
 
-/* 3. Urgence orthodontique */
-function urgence(j,niv){
-  const liste=melange(D.urgences);
-  const s=cadre(j,niv,"Que faites-vous dans cette situation ? Les réponses viennent de notre rubrique Urgences.");
-  let i=0,bon=0;
-  (function suivant(){
-    if(i>=liste.length)return finir(j,niv,etoilesDe(bon,liste.length),bon*5,pl(bon,"bonne conduite","bonnes conduites")+" sur "+liste.length+".",`<button class="btn ghost" type="button" data-go="urgences">Voir la rubrique Urgences</button>`);
-    const u=liste[i++],ch=melange(u.choix);
-    question(s,u.situation,ch.map(c=>c.t),ch.findIndex(c=>c.ok),u.explication,ok=>{if(ok)bon++;suivant()});
-  })();
-}
-
-/* 4. Devine l'appareil */
-function devine(j,niv){
-  const zoom={facile:220,moyen:320,expert:460}[niv],liste=melange(APPS).slice(0,6);
-  const s=cadre(j,niv,"Cette photo montre un détail d'un appareil. Lequel est-ce ?");
-  let i=0,bon=0;
-  (function suivant(){
-    if(i>=liste.length)return finir(j,niv,etoilesDe(bon,liste.length),bon*5,pl(bon,"appareil reconnu","appareils reconnus")+" sur "+liste.length+".");
-    const a=liste[i++],autres=melange(APPS.filter(x=>x.id!==a.id)).slice(0,3),ch=melange([a,...autres]);
-    const x=30+Math.random()*40,y=30+Math.random()*40;
-    s.innerHTML=`<div class="detail" id="detail" role="img" aria-label="Détail de la photo d'un appareil"></div><div id="dq"></div>`;
-    const det=s.querySelector("#detail");det.style.backgroundImage=`url("${imgJeu(a)}")`;det.style.backgroundSize=zoom+"%";det.style.backgroundPosition=x+"% "+y+"%";
-    const dq=s.querySelector("#dq");
-    question(dq,"Quel est cet appareil ?",ch.map(c=>c.nom),ch.indexOf(a),a.nom+" : "+a.sous+". "+a.obj+".",ok=>{if(ok)bon++;suivant()},{
-      pied:`<button class="vlink jokers" type="button" id="indice">Voir un indice</button>`,
-      choisi:()=>{det.style.backgroundSize="contain";det.style.backgroundRepeat="no-repeat";det.style.backgroundPosition="center"}
+/* 2. Le quiz malin */
+function quiz(j){
+  const liste=melange(D.quiz).slice(0,10);
+  const s=cadre(j,"10 questions tirées au hasard. Touche la bonne réponse.");
+  let i=0,bon=0,fin=false;
+  const clore=()=>{if(fin)return;fin=true;finir(j,{score:bon,unite:"sur 10",etoiles:etoilesDe(bon,10),points:bon*5,badges:bon===10?["quiz"]:[],message:pl(bon,"bonne réponse","bonnes réponses")+" sur 10."})};
+  s.innerHTML=`<div class="tableau"><span class="timer" id="t"></span><span class="stars" id="n"></span></div><div id="qz"></div>`;
+  chrono(s.querySelector("#t"),reglages.dureeQuiz,clore);
+  const qz=s.querySelector("#qz");
+  (function suivante(){
+    if(i>=liste.length)return clore();
+    const q=liste[i++],ch=melange(q.choix),app=APPS.find(a=>a.id===q.img);
+    s.querySelector("#n").textContent=i+" / "+liste.length;
+    qz.innerHTML=`<div class="card">${app?`<img class="q-img" src="${imgJeu(app)}" alt="">`:""}<h3>${esc(q.q)}</h3><div class="gros-choix">${ch.map((c,k)=>`<button class="grand" type="button" data-c="${k}"><span aria-hidden="true">${c.emoji}</span>${esc(c.t)}</button>`).join("")}</div><div class="retour"></div></div>`;
+    qz.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{
+      const c=ch[+b.dataset.c];if(c.ok)bon++;
+      qz.querySelectorAll("[data-c]").forEach(x=>{x.disabled=true;if(ch[+x.dataset.c].ok)x.classList.add("juste");else if(x===b)x.classList.add("faux")});
+      expliquer(qz.querySelector(".retour"),c.ok,q.pourquoi,q.qui,suivante);
     });
-    dq.querySelector("#indice").onclick=e=>{e.target.outerHTML=`<p class="note">${esc(D.indices[a.id])}</p>`};
   })();
 }
 
-/* 5. Le bon aligneur */
-function aligneur(j,niv){
-  const n={facile:4,moyen:6,expert:8}[niv];
-  const s=cadre(j,niv,"Touchez les gouttières dans l'ordre, de la première à la dernière.");
-  let suivante=1,erreurs=0;
-  const ordre=melange(Array.from({length:n},(_,i)=>i+1));
-  s.innerHTML=`<div class="rail" id="rail">${Array.from({length:n},(_,i)=>`<span class="case" data-c="${i+1}"></span>`).join("")}</div>
-    <div class="plateau">${ordre.map(v=>`<button class="aligneur" type="button" data-a="${v}" aria-label="Gouttière ${v}"><svg viewBox="0 0 64 40" aria-hidden="true"><path d="M6 8Q32 52 58 8" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><b>${v}</b></button>`).join("")}</div>
-    <p class="note" id="alRetour" aria-live="polite">Quelle gouttière vient en premier ?</p>`;
-  s.querySelector(".plateau").onclick=e=>{
-    const b=e.target.closest("[data-a]");if(!b||b.disabled)return;
-    if(+b.dataset.a!==suivante){erreurs++;b.classList.add("secoue");apres(()=>b.classList.remove("secoue"),400);s.querySelector("#alRetour").textContent="Pas encore : cherchez la gouttière "+suivante+".";return}
-    b.disabled=true;b.classList.add("posee");
-    s.querySelector(`.case[data-c="${suivante}"]`).textContent=suivante;s.querySelector(`.case[data-c="${suivante}"]`).classList.add("pleine");
-    suivante++;s.querySelector("#alRetour").textContent=suivante<=n?"Bien. Et ensuite ?":"";
-    if(suivante>n)apres(()=>finir(j,niv,erreurs===0?3:erreurs<=2?2:1,n*3,"Les gouttières sont dans l'ordre !",`<p>${esc(D.aligneurs)}</p>`),doux()?0:500);
-  };
+/* 3. Les bons aliments */
+function aliments(j,app){
+  const ids=Object.keys(D.aliments);
+  if(!app){
+    const s=cadre(j,"Quel appareil portes-tu ?");
+    s.innerHTML=`<div class="gros-choix">${ids.map(id=>{const a=APPS.find(x=>x.id===id);return `<button class="grand" type="button" data-a="${id}"><img src="${imgJeu(a)}" alt="">${esc(a.nom)}</button>`}).join("")}</div>`;
+    s.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>aliments(j,b.dataset.a));
+    return;
+  }
+  const liste=melange(D.aliments[app]);
+  const s=cadre(j,"Avec cet appareil, on le mange ? Touche la bonne réponse.");
+  let i=0,bon=0,fin=false;
+  const clore=()=>{if(fin)return;fin=true;finir(j,{score:bon,cle:"aliments"+app,unite:"bonnes réponses",rejouer:app,etoiles:etoilesDe(bon,liste.length),points:bon*5,message:pl(bon,"bonne réponse","bonnes réponses")+" sur "+liste.length+"."})};
+  s.innerHTML=`<div class="tableau"><span class="timer" id="t"></span><span class="stars" id="n"></span></div><div id="al"></div>`;
+  chrono(s.querySelector("#t"),reglages.dureeAliments,clore);
+  const al=s.querySelector("#al");
+  (function suivant(){
+    if(i>=liste.length)return clore();
+    const a=liste[i++];s.querySelector("#n").textContent=i+" / "+liste.length;
+    al.innerHTML=`<div class="card aliment"><div class="gros" aria-hidden="true">${a.emoji}</div><h3>${esc(a.nom)}</h3><div class="gros-choix"><button class="grand vert" type="button" data-r="oui">Oui</button><button class="grand jaune" type="button" data-r="morceaux">En petits morceaux</button><button class="grand rouge" type="button" data-r="non">Non</button></div><div class="retour"></div></div>`;
+    al.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{const ok=b.dataset.r===a.rep;if(ok)bon++;al.querySelectorAll("[data-r]").forEach(x=>{x.disabled=true;if(x.dataset.r===a.rep)x.classList.add("juste");else if(x===b)x.classList.add("faux")});expliquer(al.querySelector(".retour"),ok,a.pourquoi,"max",suivant)});
+  })();
 }
 
-/* 6. Memory */
-function memory(j,niv){
-  const n={facile:4,moyen:6,expert:9}[niv],choix=melange(APPS).slice(0,n);
-  const s=cadre(j,niv,"Retrouvez les paires : la photo de chaque appareil et son nom.");
-  const cartes=melange(choix.flatMap(a=>[{id:a.id,type:"photo",a},{id:a.id,type:"nom",a}]));
-  s.innerHTML=`<div class="tableau"><span class="stars" id="meCoups">0 coup</span></div><div class="memory" style="grid-template-columns:repeat(${n>=9?3:n>=6?3:2},1fr)">${cartes.map((c,i)=>`<button class="carte" type="button" data-i="${i}" aria-label="Carte ${i+1}"><span class="dos" aria-hidden="true">?</span><span class="face">${c.type==="photo"?`<img src="${imgJeu(c.a)}" alt="Photo : ${esc(c.a.nom)}">`:`<b>${esc(c.a.nom)}</b>`}</span></button>`).join("")}</div>`;
-  let ouv=[],coups=0,faites=0,bloque=false;
-  s.querySelector(".memory").onclick=e=>{
-    const b=e.target.closest("[data-i]");if(!b||bloque||b.classList.contains("ouverte"))return;
-    b.classList.add("ouverte");b.setAttribute("aria-label",cartes[+b.dataset.i].a.nom);ouv.push(b);
-    if(ouv.length<2)return;
-    coups++;compteur(s.querySelector("#meCoups"),coups+" coup"+(coups>1?"s":""));
-    const[x,y]=ouv;ouv=[];
-    if(cartes[+x.dataset.i].id===cartes[+y.dataset.i].id){
-      x.classList.add("trouvee");y.classList.add("trouvee");faites++;
-      if(faites===n)apres(()=>finir(j,niv,coups<=n*1.6?3:coups<=n*2.4?2:1,n*4,"Toutes les paires en "+pl(coups,"coup","coups")+" !"),doux()?0:600);
-    }else{bloque=true;apres(()=>{[x,y].forEach(c=>{c.classList.remove("ouverte");c.setAttribute("aria-label","Carte "+(+c.dataset.i+1))});bloque=false},900)}
-  };
-}
-
-/* 7. Puzzle des appareils */
-function puzzle(j,niv){
-  const n={facile:2,moyen:3,expert:4}[niv],a=melange(APPS)[0];
-  const s=cadre(j,niv,"Touchez deux pièces pour les échanger, jusqu'à découvrir l'appareil.");
+/* 4. Le puzzle : on glisse les pièces */
+function puzzle(j,n=3){
+  const a=melange(APPS)[0];
+  const s=cadre(j,"Fais glisser une pièce sur une autre pour les échanger.");
+  s.innerHTML=`<div class="seg" role="group" aria-label="Choisir le nombre de pièces">${[3,4,5].map(k=>`<button type="button" data-n="${k}" aria-pressed="${k===n}">${k*k} pièces</button>`).join("")}</div><div class="tableau"><span class="timer" id="t">0:00</span><span class="stars" id="c">0 échange</span></div><div id="pz"></div>`;
+  s.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{quitter();puzzle(j,+b.dataset.n)});
   const img=new Image();
   img.onload=()=>{
-    const total=n*n;let ordre;
+    const total=n*n;let ordre,sec=0,coups=0,fini=false;
     do{ordre=melange(Array.from({length:total},(_,i)=>i))}while(ordre.every((v,i)=>v===i));
-    s.innerHTML=`<div class="puzzle" style="aspect-ratio:${img.naturalWidth}/${img.naturalHeight};grid-template-columns:repeat(${n},1fr)">${ordre.map((v,i)=>`<button type="button" class="piece" data-p="${i}" aria-label="Pièce ${i+1}"></button>`).join("")}</div><p class="stars" id="puCoups">0 échange</p>`;
-    const pieces=[...s.querySelectorAll(".piece")];let sel=-1,coups=0;
-    const peindre=()=>pieces.forEach((p,i)=>{const v=ordre[i],x=v%n,y=Math.floor(v/n);p.style.backgroundImage=`url("${imgJeu(a)}")`;p.style.backgroundSize=n*100+"% "+n*100+"%";p.style.backgroundPosition=(n>1?x/(n-1)*100:0)+"% "+(n>1?y/(n-1)*100:0)+"%";p.classList.toggle("choisie",i===sel)});
+    const box=s.querySelector("#pz");
+    box.innerHTML=`<div class="puzzle" style="aspect-ratio:${img.naturalWidth}/${img.naturalHeight};grid-template-columns:repeat(${n},1fr);grid-auto-rows:1fr">${ordre.map((v,i)=>`<div class="piece" data-p="${i}" role="button" tabindex="0" aria-label="Pièce ${i+1}"></div>`).join("")}</div>`;
+    box.querySelector(".puzzle").scrollIntoView({block:"center"});
+    const grille=box.querySelector(".puzzle"),pieces=[...box.querySelectorAll(".piece")];
+    const peindre=()=>pieces.forEach((p,i)=>{const v=ordre[i],x=v%n,y=Math.floor(v/n);p.style.backgroundImage=`url("${imgJeu(a)}")`;p.style.backgroundSize=n*100+"% "+n*100+"%";p.style.backgroundPosition=x/(n-1)*100+"% "+y/(n-1)*100+"%"});
     peindre();
-    s.querySelector(".puzzle").onclick=e=>{
-      const b=e.target.closest("[data-p]");if(!b)return;const i=+b.dataset.p;
-      if(sel<0){sel=i;peindre();return}
-      if(sel!==i){[ordre[sel],ordre[i]]=[ordre[i],ordre[sel]];coups++;compteur(s.querySelector("#puCoups"),coups+" échange"+(coups>1?"s":""))}
-      sel=-1;peindre();
-      if(ordre.every((v,k)=>v===k)){
-        const lim=total;
-        apres(()=>{finir(j,niv,coups<=lim?3:coups<=lim*2?2:1,n*5,"Vous avez découvert : "+a.nom+" !",`<img class="photo" src="${a.img}" alt="Photo : ${esc(a.nom)}"><p>${esc(a.obj)}.</p><button class="btn sun" type="button" id="puFiche">Voir sa fiche</button>`);
-          s.querySelector("#puFiche").onclick=()=>{go("conseils");showApp(a.id)}},doux()?0:500);
-      }
-    };
+    chaque(()=>{sec++;s.querySelector("#t").textContent=mmss(sec)},1000);
+    const echanger=(x,y)=>{if(x===y)return;[ordre[x],ordre[y]]=[ordre[y],ordre[x]];coups++;s.querySelector("#c").textContent=pl(coups,"échange","échanges");peindre();
+      if(ordre.every((v,k)=>v===k)&&!fini){fini=true;
+        finir(j,{fete:true,score:Math.max(1,sec),plusPetit:true,cle:"puzzle"+n,rejouer:n,etoiles:coups<=total?3:coups<=total*1.6?2:1,points:n*n,badges:n===5?["puzzle"]:[],message:D.appareilIntro[a.id]||a.nom,extra:`<img class="photo" src="${a.img}" alt="Photo : ${esc(a.nom)}"><button class="btn sun" type="button" id="fiche">Voir ma fiche</button>`});
+        s.querySelector("#fiche").onclick=()=>{go("conseils");showApp(a.id)};
+      }};
+    /* Glisser au doigt, ou toucher deux pièces l'une après l'autre */
+    let dep=-1,doigt=null,fantome=null,bouge=false,choisie=-1,x0=0,y0=0;
+    const sous=(x,y)=>{const r=grille.getBoundingClientRect();if(x<r.left||y<r.top||x>=r.right||y>=r.bottom)return-1;return Math.floor((y-r.top)/r.height*n)*n+Math.floor((x-r.left)/r.width*n)};
+    grille.addEventListener("pointerdown",e=>{e.preventDefault();const p=e.target.closest(".piece");if(!p||dep>=0)return;doigt=e.pointerId;dep=+p.dataset.p;bouge=false;x0=e.clientX;y0=e.clientY;try{grille.setPointerCapture(e.pointerId)}catch(x){}
+      fantome=p.cloneNode();fantome.classList.add("fantome");const r=p.getBoundingClientRect();fantome.style.width=r.width+"px";fantome.style.height=r.height+"px";fantome.style.left=e.clientX-r.width/2+"px";fantome.style.top=e.clientY-r.height/2+"px";document.body.appendChild(fantome)});
+    grille.addEventListener("pointermove",e=>{if(dep<0||!fantome||e.pointerId!==doigt)return;e.preventDefault();if(Math.hypot(e.clientX-x0,e.clientY-y0)>8)bouge=true;fantome.style.left=e.clientX-fantome.offsetWidth/2+"px";fantome.style.top=e.clientY-fantome.offsetHeight/2+"px"});
+    const lacher=e=>{if(dep<0||e.pointerId!==doigt)return;fantome&&fantome.remove();fantome=null;const v=sous(e.clientX,e.clientY),d=dep;dep=-1;
+      if(!bouge||v===d){if(bouge)return;if(choisie<0){choisie=d;pieces[d].classList.add("choisie")}else{pieces[choisie].classList.remove("choisie");const c=choisie;choisie=-1;echanger(c,d)}return}
+      if(choisie>=0){pieces[choisie].classList.remove("choisie");choisie=-1}
+      if(v>=0)echanger(d,v)};
+    grille.addEventListener("pointerup",lacher);
+    grille.addEventListener("pointercancel",e=>{if(e.pointerId!==doigt)return;fantome&&fantome.remove();fantome=null;dep=-1});
+    arrets.push(()=>{fantome&&fantome.remove();fantome=null});
   };
   img.src=imgJeu(a);
 }
 
-/* 8. Vrai ou faux, quiz à niveaux */
-function quiz(j,niv){
-  const liste=melange(D.quiz[niv]).slice(0,8);
-  const s=cadre(j,niv,"Vrai ou faux, ou la bonne réponse parmi plusieurs. Une explication après chaque réponse, et deux jokers par partie.");
-  let i=0,bon=0,joker5=true,jokerP=true;
-  (function suivant(){
-    if(i>=liste.length)return finir(j,niv,etoilesDe(bon,liste.length),bon*5,pl(bon,"bonne réponse","bonnes réponses")+" sur "+liste.length+".");
-    const q=liste[i++],vf=q.type==="vf",ch=vf?["Vrai","Faux"]:q.choix;
-    const zone=document.createElement("div");
-    s.innerHTML=`<div class="tableau"><span class="stars">Question ${i} / ${liste.length}</span><span class="stars">${bon} ★</span></div>`;s.appendChild(zone);
-    question(zone,q.q,ch,q.bonne,q.explication,ok=>{if(ok)bon++;suivant()},{pied:`<div class="jokers"><button class="btn ghost" type="button" id="j50" ${joker5&&!vf?"":"disabled"}>Joker 50/50</button><button class="btn ghost" type="button" id="jp" ${jokerP?"":"disabled"}>Joker : passer</button></div>`});
-    zone.querySelector("#j50").onclick=()=>{joker5=false;melange(ch.map((_,k)=>k).filter(k=>k!==q.bonne)).slice(0,2).forEach(k=>{zone.querySelector(`[data-c="${k}"]`).disabled=true});zone.querySelector("#j50").disabled=true};
-    zone.querySelector("#jp").onclick=()=>{jokerP=false;liste[--i]=melange(D.quiz[niv].filter(x=>!liste.includes(x)))[0]||q;suivant()};
+/* 5. Tape la plaque ! */
+function plaque(j){
+  const s=cadre(j,"Touche vite les taches de plaque. Attention : ne touche pas les étoiles !");
+  s.innerHTML=`<div class="tableau"><span class="timer" id="t"></span><span class="stars" id="v" aria-label="3 vies">♥♥♥</span><span class="stars" id="sc">0</span></div><div class="photo-jeu tape" id="zone"><img alt="" src="${SCENES[0].img}"></div><p class="note" id="msg" role="status"></p>`;
+  const zone=s.querySelector("#zone"),im=zone.querySelector("img");let score=0,vies=3,fin=false;
+  const clore=()=>{if(fin)return;fin=true;finir(j,{score,unite:"taches",etoiles:score>=30?3:score>=15?2:score>0?1:0,points:score,message:pl(score,"tache touchée","taches touchées")+" !",extra:`<p class="note">En vrai, la plaque s'enlève avec la brosse.</p>`})};
+  const pret=()=>{
+    const[fx,fy,fw,fh]=SCENES[0].cadre,W=zone.clientWidth,H=Math.round(W*(im.naturalHeight*fh)/(im.naturalWidth*fw));
+    zone.style.height=H+"px";im.style.width=(W/fw)+"px";im.style.left=(-fx*W/fw)+"px";im.style.top=(-fy*H/fh)+"px";
+    zone.scrollIntoView({block:"center"});
+    const cl=chrono(s.querySelector("#t"),reglages.dureePlaque,clore);
+    const pose=()=>{
+      if(fin)return;const piege=Math.random()<.2,e=cl.ecoule(),vie=Math.max(650,1500-e*22);
+      const d=document.createElement("button");d.type="button";d.className="tache"+(piege?" piege":"");d.setAttribute("aria-label",piege?"Étoile, ne pas toucher":"Tache de plaque");if(piege)d.textContent="★";
+      d.style.left=4+Math.random()*(W-70)+"px";d.style.top=4+Math.random()*(H-70)+"px";
+      d.addEventListener("pointerdown",ev=>{ev.preventDefault();if(fin||d.dataset.pris)return;d.dataset.pris=1;d.remove();
+        if(piege){vies--;s.querySelector("#v").textContent="♥".repeat(Math.max(0,vies))+"♡".repeat(3-Math.max(0,vies));s.querySelector("#msg").textContent="Une étoile, ce n'est pas de la plaque !";if(vies<=0)clore()}
+        else{score++;s.querySelector("#sc").textContent=score}});
+      zone.appendChild(d);apres(()=>d.remove(),vie);
+      apres(pose,Math.max(330,850-e*11));
+    };
+    pose();
+  };
+  if(im.complete&&im.naturalWidth)pret();else im.onload=pret;
+}
+
+/* 6. Attrape les bons objets */
+function attrape(j){
+  const m=melange(D.missions)[0],ids=Object.keys(D.objets),bons=new Set(m.bons);
+  const s=cadre(j,"Déplace le panier avec le doigt.");
+  s.innerHTML=`<div class="mission"><span class="eyebrow">Ta mission</span><b>${esc(m.titre)}</b></div><div class="tableau"><span class="stars" id="v" aria-label="3 vies">♥♥♥</span><span class="timer" id="t"></span><span class="stars" id="sc">0</span></div>
+    <div class="terrain" id="terrain" tabindex="0" aria-label="Terrain de jeu : déplace le panier avec le doigt ou les flèches"><div class="panier" id="pan" aria-hidden="true">🧺</div></div><p class="note" id="msg" role="status"></p>`;
+  s.querySelector(".mission").scrollIntoView({block:"start"});
+  const t=s.querySelector("#terrain"),pan=s.querySelector("#pan"),W=()=>t.clientWidth,H=()=>t.clientHeight,vitBase=doux()?60:95;
+  let x=W()/2,score=0,vies=3,objets=[],fin=false,prec=performance.now();
+  const placer=()=>{x=Math.max(32,Math.min(W()-32,x));pan.style.transform=`translateX(${x-28}px)`};placer();
+  const viser=e=>{x=e.clientX-t.getBoundingClientRect().left;placer();e.preventDefault()};
+  t.addEventListener("pointerdown",e=>{try{t.setPointerCapture(e.pointerId)}catch(z){}viser(e)});
+  t.addEventListener("pointermove",viser);
+  t.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){x-=34;placer();e.preventDefault()}if(e.key==="ArrowRight"){x+=34;placer();e.preventDefault()}});
+  const clore=()=>{if(fin)return;fin=true;finir(j,{score,unite:"objets",etoiles:score>=14?3:score>=7?2:score>0?1:0,points:score*2,message:vies<=0?"Plus de vies : "+pl(score,"objet attrapé","objets attrapés")+".":pl(score,"objet attrapé","objets attrapés")+" !"})};
+  const cl=chrono(s.querySelector("#t"),reglages.dureeAttrape,clore);
+  const lache=()=>{if(fin)return;const pool=Math.random()<.5?[...bons]:ids,id=pool[Math.floor(Math.random()*pool.length)],o=D.objets[id],el=document.createElement("span");el.className="objet";el.innerHTML=o.emoji+`<small>${esc(o.nom)}</small>`;const ox=48+Math.random()*(W()-96);el.style.left=ox+"px";t.appendChild(el);objets.push({id,o,el,x:ox,y:-50});apres(lache,Math.max(620,1350-cl.ecoule()*15))};
+  lache();
+  image(now=>{if(fin)return;const dt=Math.min((now-prec)/1000,.05);prec=now;const vit=vitBase+cl.ecoule()*(doux()?1:2.4);
+    objets=objets.filter(b=>{if(fin)return false;b.y+=vit*dt;b.el.style.transform=`translate(-50%,${b.y}px)`;
+      if(b.y>H()-96&&b.y<H()-30&&Math.abs(b.x-x)<46){b.el.remove();
+        if(bons.has(b.id)){score++;s.querySelector("#sc").textContent=score;s.querySelector("#msg").textContent="Bien : "+b.o.nom+"."}
+        else{vies--;s.querySelector("#v").textContent="♥".repeat(Math.max(0,vies))+"♡".repeat(3-Math.max(0,vies));s.querySelector("#msg").textContent=b.o.nom+" : ce n'est pas la mission !";if(vies<=0)clore()}
+        return false}
+      if(b.y>H()){b.el.remove();return false}return true})});
+}
+
+/* 7. Vrai ou faux */
+function vraiFaux(j){
+  const liste=melange(D.vf);
+  const s=cadre(j,"Vrai ou faux ? Une courte explication après chaque réponse.");
+  let i=0,bon=0,fin=false;
+  const clore=()=>{if(fin)return;fin=true;finir(j,{score:bon,unite:"bonnes réponses",etoiles:bon>=10?3:bon>=5?2:bon>0?1:0,points:bon*5,message:pl(bon,"bonne réponse","bonnes réponses")+" !"})};
+  s.innerHTML=`<div class="tableau"><span class="timer" id="t"></span><span class="stars" id="sc">0 ★</span></div><div id="vf"></div>`;
+  chrono(s.querySelector("#t"),reglages.dureeVF,clore);
+  const z=s.querySelector("#vf");
+  (function suite(){
+    if(i>=liste.length)return clore();
+    const q=liste[i++];
+    z.innerHTML=`<div class="card"><h3>${esc(q.q)}</h3><div class="gros-choix deux"><button class="grand vert" type="button" data-v="1">Vrai</button><button class="grand rouge" type="button" data-v="0">Faux</button></div><div class="retour"></div></div>`;
+    z.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const ok=(b.dataset.v==="1")===q.vrai;if(ok)bon++;s.querySelector("#sc").textContent=bon+" ★";z.querySelectorAll("[data-v]").forEach(x=>{x.disabled=true;if((x.dataset.v==="1")===q.vrai)x.classList.add("juste");else if(x===b)x.classList.add("faux")});expliquer(z.querySelector(".retour"),ok,q.pourquoi,"max",suite)});
   })();
 }
 
-/* 9. Attrape les bonnes habitudes */
-function attrape(j,niv){
-  const vit={facile:90,moyen:135,expert:185}[niv]*(doux()?.6:1),gap={facile:1500,moyen:1100,expert:800}[niv];
-  const s=cadre(j,niv,"Déplacez le panier pour attraper les bonnes habitudes. Laissez tomber les autres.");
-  s.innerHTML=`<div class="tableau"><span class="stars" id="atVies">♥♥♥</span><span class="timer" id="atT">${mmss(reglages.dureeAttrape)}</span><span class="stars" id="atS">0</span></div>
-    <div class="terrain" id="terrain" tabindex="0" aria-label="Terrain de jeu : déplacez le panier avec le doigt ou les flèches"><div class="panier" id="panier" aria-hidden="true">🧺</div></div><p class="note retour-at" id="atRetour" aria-live="polite"></p>`;
-  const t=s.querySelector("#terrain"),pan=s.querySelector("#panier"),W=()=>t.clientWidth,H=()=>t.clientHeight;
-  s.scrollIntoView({block:"start"});
-  let x=W()/2,score=0,vies=3,reste=reglages.dureeAttrape,objets=[],fin=false,prec=performance.now(),raf=0;
-  const placer=()=>{x=Math.max(28,Math.min(W()-28,x));pan.style.transform=`translateX(${x-28}px)`};placer();
-  t.addEventListener("pointermove",e=>{x=e.clientX-t.getBoundingClientRect().left;placer();e.preventDefault()});
-  t.addEventListener("pointerdown",e=>{x=e.clientX-t.getBoundingClientRect().left;placer()});
-  t.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){x-=30;placer();e.preventDefault()}if(e.key==="ArrowRight"){x+=30;placer();e.preventDefault()}});
-  const bilan=()=>{if(fin)return;fin=true;finir(j,niv,score>=14?3:score>=8?2:score>0?1:0,score*2,vies<=0?"Plus de vies : "+pl(score,"bonne habitude attrapée","bonnes habitudes attrapées")+".":pl(score,"bonne habitude attrapée","bonnes habitudes attrapées")+" !")};
-  chaque(()=>{const h=D.habitudes[Math.floor(Math.random()*D.habitudes.length)],el=document.createElement("span");el.className="objet";el.innerHTML=h.emoji+`<small>${esc(h.nom)}</small>`;const ox=50+Math.random()*(W()-100);el.style.left=ox+"px";t.appendChild(el);objets.push({h,el,x:ox,y:-36})},gap);
-  chaque(()=>{reste--;compteur(s.querySelector("#atT"),mmss(reste));if(reste<=0)bilan()},1000);
-  arrets.push(()=>cancelAnimationFrame(raf));
-  (function boucle(now){
-    const dt=Math.min((now-prec)/1000,.05);prec=now;
-    if(fin)return;
-    objets=objets.filter(o=>{
-      if(fin)return false;
-      o.y+=vit*dt;o.el.style.transform=`translate(-50%,${o.y}px)`;
-      if(o.y>H()-64&&o.y<H()-24&&Math.abs(o.x-x)<36){
-        o.el.remove();
-        if(o.h.bon){score++;compteur(s.querySelector("#atS"),score);compteur(s.querySelector("#atRetour"),"Bien : "+o.h.nom+".")}
-        else{vies--;compteur(s.querySelector("#atVies"),"♥".repeat(vies)+"♡".repeat(3-vies));compteur(s.querySelector("#atRetour"),o.h.nom+" : "+o.h.pourquoi);if(vies<=0)bilan()}
-        return false;
-      }
-      if(o.y>H()){o.el.remove();return false}
-      return true;
-    });
-    if(!fin)raf=requestAnimationFrame(boucle);
-  })(prec);
+/* 8. 60 secondes chrono et le défi du jour : mini-défis mélangés */
+const NOMS_REP={oui:"Oui",morceaux:"En petits morceaux",non:"Non"};
+function miniDefis(r){
+  const out=[];
+  D.quiz.forEach(q=>out.push({q:q.q,img:APPS.some(a=>a.id===q.img)?"images/appareils/jeux/"+q.img+".jpg":"",ch:q.choix.map(c=>c.t),em:q.choix.map(c=>c.emoji),bonne:q.choix.findIndex(c=>c.ok),ex:q.pourquoi}));
+  Object.entries(D.aliments).forEach(([app,l])=>l.forEach(a=>{const cles=["oui","morceaux","non"];out.push({q:(app==="bagues"?"Avec des bagues : ":"Avec le Carrière : ")+a.nom,gros:a.emoji,ch:cles.map(k=>NOMS_REP[k]),bonne:cles.indexOf(a.rep),ex:a.pourquoi})}));
+  APPS.forEach(a=>{const autres=melange(APPS.filter(x=>x.id!==a.id),r).slice(0,2),ch=melange([a,...autres],r);out.push({q:"Quel est cet appareil ?",img:imgJeu(a),ch:ch.map(x=>x.nom),bonne:ch.indexOf(a),ex:a.nom+" : "+a.sous+"."})});
+  return melange(out,r);
 }
-
-/* 10. La roue du sourire */
-function roue(j,niv){
-  const secteurs=[["Question","var(--coral)","var(--coral-ink)"],["Défi","var(--sun)","var(--sun-ink)"],["Langue","var(--teal)","var(--teal-ink)"],["Question","var(--coral)","var(--coral-ink)"],["Défi","var(--sun)","var(--sun-ink)"],["Langue","var(--teal)","var(--teal-ink)"]];
-  const s=cadre(j,niv,"Lancez la roue : elle choisit une question, un défi d'hygiène ou un exercice de langue.");
-  const pt=(a,r)=>[100+r*Math.sin(a),100-r*Math.cos(a)].map(v=>v.toFixed(1)).join(" ");
-  const pas=Math.PI/3;
-  let angle=0,gains=0,tours=0,tourne=false;
-  s.innerHTML=`<div class="roue-cadre"><span class="fleche" aria-hidden="true">▼</span><svg class="roue" id="roue" viewBox="0 0 200 200" role="img" aria-label="La roue du sourire">${secteurs.map((c,i)=>`<path d="M100 100L${pt(i*pas,98)}A98 98 0 0 1 ${pt((i+1)*pas,98)}Z" fill="${c[1]}"/><text x="100" y="34" text-anchor="middle" transform="rotate(${i*60+30} 100 100)" font-size="13" font-weight="700" fill="${c[2]}" font-family="var(--display)">${c[0]}</text>`).join("")}<circle cx="100" cy="100" r="16" fill="var(--surface)"/></svg></div>
-    <button class="btn" type="button" id="roueGo">Lancer la roue</button><button class="btn ghost" type="button" id="roueFin">Terminer et compter mes points</button><div id="roueRes" aria-live="polite"></div>`;
-  const res=s.querySelector("#roueRes"),go1=s.querySelector("#roueGo");
-  const gagner=n=>{gains+=n};
-  s.querySelector("#roueFin").onclick=()=>tours===0?menu():finir(j,niv,tours>=5?3:tours>=3?2:tours>0?1:0,gains,tours+" tour"+(tours>1?"s":"")+" de roue !");
-  go1.onclick=()=>{
-    if(tourne)return;tourne=true;res.innerHTML="";go1.disabled=true;
-    const i=Math.floor(Math.random()*6);
-    angle+=(doux()?0:1440)+((360-(i*60+30)-angle%360)+360)%360;
-    s.querySelector("#roue").style.transform=`rotate(${angle}deg)`;
-    apres(()=>{tourne=false;go1.disabled=false;tours++;
-      const type=secteurs[i][0];
-      if(type==="Question"){const n=NIV[Math.floor(Math.random()*3)][0],l=D.quiz[n],q=l[Math.floor(Math.random()*l.length)];
-        question(res,q.q,q.type==="vf"?["Vrai","Faux"]:q.choix,q.bonne,q.explication,()=>{res.innerHTML=""},{choisi:ok=>{if(ok)gagner(5)}})}
-      else if(type==="Défi"){const d=D.defisHygiene[Math.floor(Math.random()*D.defisHygiene.length)];
-        res.innerHTML=`<div class="card"><span class="eyebrow">Défi d'hygiène</span><h3>${esc(d.t)}</h3><button class="btn" type="button" id="defiOk">C'est fait</button></div>`;
-        res.querySelector("#defiOk").onclick=()=>{gagner(5);res.innerHTML=""}}
-      else{const e=EX[Math.floor(Math.random()*EX.length)];
-        res.innerHTML=`<div class="card"><span class="eyebrow">Exercice de langue</span><h3>${esc(e.t)}</h3><p>${esc(e.d)}</p><p class="note">${esc(e.dose)} · ${esc(e.freq)}</p><button class="btn" type="button" id="exGo">Aller à l'exercice</button></div>`;
-        res.querySelector("#exGo").onclick=()=>{P.points+=gains;gains=0;sauver();ouvrirExercice(e.n)}}
-    },doux()?0:3200);
+function chronoJeu(j,opts={}){
+  const r=opts.r||Math.random,liste=miniDefis(r);
+  const s=cadre(j,opts.regle||"Question flash, aliment à trier, appareil à reconnaître : réponds au maximum en 60 secondes.");
+  const deja=opts.jour&&P.defi[auj()]!==undefined;
+  if(deja)s.insertAdjacentHTML("beforebegin",`<p class="pill ok">Déjà relevé aujourd'hui. Tu peux rejouer pour le plaisir.</p>`);
+  s.innerHTML=`<button class="grand sun" type="button" id="go">C'est parti !</button>`;
+  s.querySelector("#go").onclick=()=>{
+    let i=0,bon=0,fin=false;const erreurs=[];
+    s.innerHTML=`<div class="tableau"><span class="timer" id="t"></span><span class="stars" id="sc">0 ★</span></div><div id="f"></div>`;
+    const clore=()=>{if(fin)return;fin=true;
+      const pts=opts.jour?(deja?0:bon*10):bon*5;
+      if(opts.jour&&!deja){P.defi[auj()]=pts;sauver()}
+      finir(j,{score:bon,unite:"bonnes réponses",etoiles:bon>=12?3:bon>=6?2:bon>0?1:0,points:pts,badges:opts.jour?["defi"]:[],message:pl(bon,"bonne réponse","bonnes réponses")+" !",extra:erreurs.length?`<div class="revoir"><b>À revoir :</b><ul class="list">${erreurs.slice(0,5).map(q=>`<li><span>${esc(q.ex)}</span></li>`).join("")}</ul></div>`:""})};
+    chrono(s.querySelector("#t"),reglages.dureeChrono,clore);
+    const f=s.querySelector("#f");
+    (function pose(){
+      const q=liste[i++%liste.length];
+      f.innerHTML=`<div class="card">${q.img?`<img class="q-img" src="${q.img}" alt="">`:""}${q.gros?`<div class="gros" aria-hidden="true">${q.gros}</div>`:""}<h3>${esc(q.q)}</h3><div class="gros-choix">${q.ch.map((c,k)=>`<button class="grand" type="button" data-c="${k}">${q.em?`<span aria-hidden="true">${q.em[k]}</span>`:""}${esc(c)}</button>`).join("")}</div></div>`;
+      f.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{if(+b.dataset.c===q.bonne){bon++;s.querySelector("#sc").textContent=bon+" ★"}else if(!erreurs.includes(q))erreurs.push(q);pose()});
+    })();
   };
 }
-
-/* 11. Le défi du jour : 60 secondes */
-const POOLS=[
-  ["Le quiz éclair",r=>melange([...D.quiz.facile,...D.quiz.moyen,...D.quiz.expert],r).map(q=>({q:q.q,ch:q.type==="vf"?["Vrai","Faux"]:q.choix,bonne:q.bonne,ex:q.explication}))],
-  ["Les aliments éclair",r=>melange(D.aliments,r).map(a=>({q:a.nom+" : on garde ou on écarte ?",ch:["Je garde","J'écarte"],bonne:a.bon?0:1,ex:a.pourquoi}))],
-  ["Les habitudes éclair",r=>melange(D.habitudes,r).map(a=>({q:a.nom+" : bonne habitude ?",ch:["Oui","Non"],bonne:a.bon?0:1,ex:a.pourquoi}))]
-];
-function defiDuJour(){const r=graine("defi"+auj()),p=POOLS[Math.floor(r()*POOLS.length)];return{nom:p[0],liste:p[1](r)}}
-function defi(j,niv){
-  const d=defiDuJour();
-  const s=cadre(j,niv,d.nom+" : répondez à un maximum de questions en "+reglages.dureeDefi+" secondes. Nouveau défi chaque jour.");
-  const deja=P.defi[auj()];
-  if(deja!==undefined)s.insertAdjacentHTML("beforebegin",`<p class="pill ok">Déjà relevé aujourd'hui : ${deja} points. Vous pouvez rejouer pour le plaisir.</p>`);
-  s.innerHTML=`<button class="btn sun" type="button" id="defiGo">Commencer le défi</button>`;
-  s.querySelector("#defiGo").onclick=()=>{
-    let i=0,bon=0,reste=reglages.dureeDefi;const erreurs=[];
-    function poser(){
-      const q=d.liste[i%d.liste.length];i++;
-      s.innerHTML=`<div class="tableau"><span class="timer" id="dfT">${mmss(reste)}</span><span class="stars">${bon} ★</span></div><div class="card"><h3>${esc(q.q)}</h3><div class="choix">${q.ch.map((c,k)=>`<button class="btn ghost" type="button" data-c="${k}">${esc(c)}</button>`).join("")}</div></div>`;
-      s.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{if(+b.dataset.c===q.bonne)bon++;else if(!erreurs.includes(q))erreurs.push(q);poser()});
-    }
-    chaque(()=>{reste--;const el=s.querySelector("#dfT");if(el)el.textContent=mmss(reste);
-      if(reste<=0){
-        const premier=P.defi[auj()]===undefined,pts=premier?bon*10:0;
-        if(premier){P.defi[auj()]=pts;sauver()}
-        finir(j,niv,bon>=10?3:bon>=5?2:bon>0?1:0,pts,pl(bon,"bonne réponse","bonnes réponses")+" en "+reglages.dureeDefi+" secondes !",
-          (premier?"":`<p class="note">Les points ne comptent qu'une fois par jour.</p>`)+(erreurs.length?`<div class="revoir"><b>À revoir :</b><ul class="list">${erreurs.map(q=>`<li><span>${esc(q.q)} ${esc(q.ex)}</span></li>`).join("")}</ul></div>`:""));
-      }},1000);
-    poser();
-  };
-}
+function defiJour(j){chronoJeu(j,{jour:true,r:graine("defi"+auj()),regle:"Le même défi toute la journée, un nouveau demain : réponds au maximum en 60 secondes."})}
 
 const CATALOGUE=[
-  {id:"defi",nom:"Le défi du jour",sous:"60 secondes, chaque jour",f:defi,dot:"sun"},
-  {id:"brossage",nom:"Mission brossage",sous:"Toutes les faces des dents",f:brossage,niveaux:true,dot:"teal"},
-  {id:"bagues",nom:"Sauve tes bagues !",sous:"Les aliments à écarter",f:bagues,niveaux:true,dot:"coral"},
-  {id:"urgence",nom:"Urgence orthodontique",sous:"La bonne conduite",f:urgence,dot:"coral"},
-  {id:"devine",nom:"Devine l'appareil",sous:"Reconnaître un détail",f:devine,niveaux:true,dot:"sun"},
-  {id:"aligneur",nom:"Le bon aligneur",sous:"Remettre dans l'ordre",f:aligneur,niveaux:true,dot:"teal"},
-  {id:"memory",nom:"Memory",sous:"Photo et nom",f:memory,niveaux:true,dot:"sun"},
-  {id:"puzzle",nom:"Puzzle des appareils",sous:"Découvrir un appareil",f:puzzle,niveaux:true,dot:"coral"},
-  {id:"quiz",nom:"Vrai ou faux",sous:"Quiz, jokers et étoiles",f:quiz,niveaux:true,dot:"teal"},
-  {id:"attrape",nom:"Attrape les bonnes habitudes",sous:"Le panier et les objets",f:attrape,niveaux:true,dot:"coral"},
-  {id:"roue",nom:"La roue du sourire",sous:"Question, défi ou exercice",f:roue,dot:"sun"}
+  {id:"defi",nom:"Le défi du jour",f:defiJour},
+  {id:"nettoyage",nom:"Le grand nettoyage",sous:"Frotte les dents avec le doigt",f:nettoyage,dot:"teal"},
+  {id:"quiz",nom:"Le quiz malin",sous:"10 questions avec Léo et Max",f:quiz,dot:"sun"},
+  {id:"aliments",nom:"Les bons aliments",sous:"Oui, en morceaux ou non",f:aliments,dot:"coral"},
+  {id:"puzzle",nom:"Le puzzle",sous:"9, 16 ou 25 pièces",f:puzzle,dot:"teal"},
+  {id:"plaque",nom:"Tape la plaque !",sous:"Vite, avant la fin du chrono",f:plaque,dot:"coral"},
+  {id:"attrape",nom:"Attrape les bons objets",sous:"Suis la mission",f:attrape,dot:"sun"},
+  {id:"vf",nom:"Vrai ou faux",sous:"Deux gros boutons",f:vraiFaux,dot:"teal"},
+  {id:"chrono",nom:"60 secondes chrono",sous:"Des mini-défis mélangés",f:chronoJeu,dot:"coral"}
 ];
-
 function ouvrirExercice(n){
   const x=NIVEAUX.find(y=>y.ex.some(e=>e.n===n));
   niveau=x.n;store.set("exNiv",niveau);go("langue");
   const c=document.querySelector(`[data-fait="${n}"]`);if(c)c.closest(".ex").scrollIntoView({block:"center"});
 }
 function exerciceDuJour(){const x=NIVEAUX.find(y=>y.n===niveau)||NIVEAUX[0];return x.ex[Math.floor(graine("langue"+auj())()*x.ex.length)]}
-
-function lancer(id,niv){
-  quitter();
-  const j=CATALOGUE.find(x=>x.id===id);
-  niv=j.niveaux?(niv&&niv!=="unique"?niv:"facile"):"unique";
-  jeuEnCours=id;
-  j.f(j,niv);
-}
+function lancer(id,arg){quitter();document.querySelectorAll(".confettis,.toast,.fantome").forEach(x=>x.remove());const j=CATALOGUE.find(x=>x.id===id);j.f(j,arg)}
+function aRecord(id){return Object.keys(P.records).some(k=>k.startsWith(id))}
 function menu(){
   quitter();P=lire();visiter();$("#v-jeux").classList.remove("en-jeu");
   const e=exerciceDuJour(),fait=exFait(jour(),e);
   if(fait&&P.langue!==auj()){P.langue=auj();P.points+=20;gagnerBadge("langue");sauver()}
-  const etoilesJeu=id=>Math.max(0,...Object.entries(P.scores).filter(([k])=>k.split(":")[0]===id).map(([,v])=>v));
-  const d=defiDuJour(),defiFait=P.defi[auj()]!==undefined;
-  racine.innerHTML=`<div class="hero"><span class="eyebrow">Jeux</span><h2>Le terrain de jeu</h2><p>Revenez chaque jour : un nouveau défi vous attend.</p></div>
-    <div class="tableau score"><span><b>${P.points}</b> points</span><span><b>${P.serie}</b> jour${P.serie>1?"s":""} de suite</span><span><b>${P.badges.length}</b> badge${P.badges.length>1?"s":""}</span></div>
-    <div class="card defi-carte"><span class="eyebrow">Le défi du jour</span><h3>${esc(d.nom)}</h3><p>${defiFait?"Défi relevé. Rendez-vous demain !":"60 secondes pour gagner des points."}</p><button class="btn sun" type="button" data-jeu="defi">${defiFait?"Rejouer":"Relever le défi"}</button></div>
-    <div class="card"><span class="eyebrow">Le défi de la langue</span><h3>${esc(e.t)}</h3><p class="note">${esc(e.dose)} · ${esc(e.freq)}</p><p>${fait?"Fait aujourd'hui : +20 points. Bravo !":"Faites cet exercice aujourd'hui pour gagner 20 points."}</p><button class="btn ghost" type="button" data-exo="${e.n}">Aller à l'exercice</button></div>
-    <div class="tiles">${CATALOGUE.filter(x=>x.id!=="defi").map(x=>`<button class="tile" type="button" data-jeu="${x.id}"><span class="dot ${x.dot}">★</span><b>${esc(x.nom)}</b><span>${esc(x.sous)}</span><span class="mini-etoiles" aria-label="${etoilesJeu(x.id)} étoiles sur 3">${etoilesTxt(etoilesJeu(x.id))}</span></button>`).join("")}</div>
+  const defiFait=P.defi[auj()]!==undefined,nb=P.badges.filter(b=>BADGES[b]).length;
+  racine.innerHTML=`<div class="hero"><span class="eyebrow">Jeux</span><h2>Le terrain de jeu</h2><p>Des parties courtes, et ton record à battre.</p></div>
+    <div class="tableau score"><span><b>${+P.points}</b> points</span><span><b>${+P.serie}</b> ${P.serie>1?"jours de suite":"jour de suite"}</span><span><b>${nb}</b> ${nb>1?"badges":"badge"}</span></div>
+    <div class="card defi-carte"><span class="eyebrow">Le défi du jour</span><h3>60 secondes</h3><p>${defiFait?"Défi relevé. Rendez-vous demain !":"Un nouveau défi chaque jour, avec des points à gagner."}</p><button class="btn sun" type="button" data-jeu="defi">${defiFait?"Rejouer":"Relever le défi"}</button></div>
+    <div class="card"><span class="eyebrow">Le défi de la langue</span><h3>${esc(e.t)}</h3><p class="note">${esc(e.dose)} · ${esc(e.freq)}</p><p>${fait?"Fait aujourd'hui : +20 points. Bravo !":"Fais cet exercice aujourd'hui pour gagner 20 points."}</p><button class="btn ghost" type="button" data-exo="${e.n}">Aller à l'exercice</button></div>
+    <div class="tiles">${CATALOGUE.filter(x=>x.id!=="defi").map(x=>`<button class="tile" type="button" data-jeu="${x.id}"><span class="dot ${x.dot}">★</span><b>${esc(x.nom)}</b><span>${esc(x.sous)}</span>${aRecord(x.id)?`<span class="mini-etoiles">Record à battre</span>`:""}</button>`).join("")}</div>
     <div class="card"><h3>Mes badges</h3><div class="badges">${Object.entries(BADGES).map(([k,[n,t]])=>`<div class="badge${P.badges.includes(k)?" gagne":""}"><span aria-hidden="true">${P.badges.includes(k)?"★":"☆"}</span><b>${esc(n)}</b><small>${esc(t)}</small></div>`).join("")}</div></div>
-    <p class="note">Votre progression reste sur ce téléphone. Pas de compte, rien n'est envoyé.</p>`;
+    <p class="note">Ta progression reste sur ce téléphone. Pas de compte, rien n'est envoyé. Les jeux ne remplacent jamais l'avis de ta docteure : en cas d'urgence, appelle le cabinet.</p>`;
 }
 racine.addEventListener("click",e=>{
   const t=e.target;
   if(t.closest("[data-menu]")){menu();window.scrollTo(0,0);return}
   const a=t.closest("[data-jeu]");if(a){lancer(a.dataset.jeu);return}
-  const x=t.closest("[data-exo]");if(x){ouvrirExercice(+x.dataset.exo);return}
-  const n=t.closest("[data-niveau]");if(n){lancer(jeuEnCours,n.dataset.niveau)}
+  const x=t.closest("[data-exo]");if(x)ouvrirExercice(+x.dataset.exo);
 });
 window.Jeux={menu,quitter,lancer,reglages,etat:()=>P,CATALOGUE};
 })();

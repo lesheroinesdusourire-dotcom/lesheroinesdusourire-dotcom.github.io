@@ -3,12 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="i18n.js"></script>
 <meta name="theme-color" content="#5A22C4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Héroïnes du Sourire">
 <title>Les Héroïnes du Sourire : orthodontistes au Chesnay et à Villeneuve-le-Roi</title>
 <meta name="description" content="L'espace patient des Dr Johana Lichaa (Le Chesnay-Rocquencourt) et Dr Clara Salem Melloul (Villeneuve-le-Roi) : fiches des appareils, urgences, exercices de la langue, jeux et rendez-vous Doctolib.">
 <link rel="canonical" href="https://lesheroinesdusourire.fr/">
+<link rel="alternate" hreflang="fr" href="https://lesheroinesdusourire.fr/">
+<link rel="alternate" hreflang="en" href="https://lesheroinesdusourire.fr/en/">
+<link rel="alternate" hreflang="es" href="https://lesheroinesdusourire.fr/es/">
+<link rel="alternate" hreflang="x-default" href="https://lesheroinesdusourire.fr/">
 <!-- VERIFICATION-GOOGLE --><!-- /VERIFICATION-GOOGLE -->
 <!-- DONNEES-STRUCTUREES --><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Johana Lichaa", "url": "https://lesheroinesdusourire.fr/cabinets/le-chesnay-rocquencourt/", "telephone": "01 61 12 19 40", "address": {"@type": "PostalAddress", "streetAddress": "44 ter boulevard Saint-Antoine", "postalCode": "78150", "addressLocality": "Le Chesnay-Rocquencourt", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.817181, "longitude": 2.124121}, "sameAs": ["https://www.doctolib.fr/dentiste/le-chesnay-rocquencourt/johana-lichaa"]}, {"@context": "https://schema.org", "@type": "Dentist", "name": "Cabinet d'orthodontie Dr Clara Salem Melloul", "url": "https://lesheroinesdusourire.fr/cabinets/villeneuve-le-roi/", "telephone": "01 49 61 11 11", "address": {"@type": "PostalAddress", "streetAddress": "2 place Louis Jacquard", "postalCode": "94290", "addressLocality": "Villeneuve-le-Roi", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 48.734077, "longitude": 2.416758}, "sameAs": ["https://www.doctolib.fr/orthodontiste/villeneuve-le-roi/clara-salem-melloul"]}]}</script><!-- /DONNEES-STRUCTUREES -->
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -16,7 +21,7 @@
 <style>
 /* Layout: appli mobile — une vue à la fois, barre d'onglets en bas, cartes seulement là où il y a une action */
 :root{
-  --papier:#FBF0E7; --bg:#DCCBFF; --surface:#FFFFFF; --ink:#2A1A4A; --muted:#4F3F6E;
+  --papier:#FBF0E7; --plaque:#C9A24A; --bg:#DCCBFF; --surface:#FFFFFF; --ink:#2A1A4A; --muted:#4F3F6E;
   --line:#C9B4F2; --accent:#5A22C4; --accent-soft:#EDE3FF;
   --sun:#FFC83D; --sun-ink:#5A3E00; --coral:#FF7A6B; --coral-ink:#4A1109; --teal:#2CC9B8; --teal-ink:#06332E; --ombre:#2A1A4A66;
   --alert:#C2301D; --alert-soft:#FDE8E5; --ok:#14774C; --ok-soft:#DFF4EA;
@@ -217,6 +222,11 @@ nav.tabs button{all:unset;cursor:pointer;display:flex;flex-direction:column;alig
 nav.tabs svg{width:24px;height:24px}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.langues{display:flex;justify-content:flex-end;gap:4px;margin-bottom:10px}
+.langues button{all:unset;cursor:pointer;min-width:40px;text-align:center;padding:7px 4px;border-radius:12px;font-size:.8rem;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--line)}
+.langues button[aria-pressed="true"]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.langues button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.trad-note{text-align:center;margin:-4px 0 10px}
 </style>
 <link rel="stylesheet" href="espace.css">
 <style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}</style>
@@ -245,7 +255,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
   <div class="tiles">
     <button class="tile" data-go="conseils"><span class="dot coral">?</span><b>Les appareils</b><span>Photos et règles</span></button>
     <button class="tile" data-go="langue"><span class="dot teal">L</span><b>Ma langue</b><span>Exercices du jour</span></button>
-    <button class="tile wide jeux" data-go="jeux"><span class="dot sun">★</span><b>Jeux</b><span>11 jeux, un défi chaque jour et des badges à gagner</span></button>
+    <button class="tile wide jeux" data-go="jeux"><span class="dot sun">★</span><b>Jeux</b><span>8 jeux, un défi chaque jour et des badges à gagner</span></button>
     <button class="tile urgent" data-go="urgences"><span class="dot">!</span><b>Urgences</b><span>Que faire tout de suite</span></button>
     <button class="tile" data-go="videos"><span class="dot sun">▶</span><b>Vidéos</b><span>Le Royaume du Sourire</span></button>
     <button class="tile" data-go="gouttiere"><span class="dot coral">G</span><b>Ma gouttière</b><span>Mon suivi</span></button>
@@ -379,7 +389,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 </section>
 
 <!-- BRUXISME : BROUILLON, retirer le badge après validation des docteures -->
-<section class="view" id="v-bruxisme" hidden>
+<section class="view" id="v-bruxisme" hidden data-sans-trad>
   <svg class="scene" viewBox="0 0 520 170" role="img" aria-label="Une dent souriante qui protège sa mâchoire"><rect width="520" height="170" fill="var(--accent-soft)"/><circle cx="46" cy="38" r="20" fill="var(--coral)"/><circle cx="476" cy="44" r="14" fill="var(--sun)"/><circle cx="440" cy="130" r="22" fill="var(--teal)"/><circle cx="84" cy="136" r="10" fill="var(--sun)"/><use href="#dent" x="206" y="18" width="108" height="140"/><path d="M336 40l-16 34h14l-8 30 26-42h-15l10-22Z" fill="var(--coral)"/><path d="M184 40l16 34h-14l8 30-26-42h15l-10-22Z" fill="var(--coral)"/></svg>
   <div class="hero"><span class="eyebrow">Mâchoire</span><h2>Bruxisme et mâchoire (ATM)</h2><span class="pill now">Brouillon à valider</span><p>Serrer ou grincer des dents, ça arrive : voici comment le repérer et à qui en parler.</p></div>
   <div class="card"><h3>C'est quoi ?</h3><ul class="list"><li><span>Le bruxisme, c'est serrer ou grincer des dents sans le vouloir.</span></li><li><span>Cela peut arriver la nuit ou la journée.</span></li><li><span>Cela peut toucher les enfants comme les adultes.</span></li><li><span>L'ATM est l'articulation de la mâchoire, juste devant l'oreille.</span></li><li><span>Elle permet d'ouvrir et de fermer la bouche.</span></li></ul></div>
@@ -390,7 +400,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 </section>
 
 <!-- APNEE : BROUILLON, retirer le badge après validation des docteures -->
-<section class="view" id="v-apnee" hidden>
+<section class="view" id="v-apnee" hidden data-sans-trad>
   <svg class="scene" viewBox="0 0 520 170" role="img" aria-label="Une dent qui dort sous la lune"><rect width="520" height="170" fill="var(--accent-soft)"/><circle cx="46" cy="38" r="20" fill="var(--coral)"/><circle cx="476" cy="44" r="14" fill="var(--sun)"/><circle cx="440" cy="130" r="22" fill="var(--teal)"/><circle cx="84" cy="136" r="10" fill="var(--sun)"/><use href="#dent" x="206" y="18" width="108" height="140"/><path d="M380 26a30 30 0 1 0 22 50 26 26 0 0 1-22-50Z" fill="var(--sun)"/><text x="330" y="60" font-family="var(--display)" font-weight="700" font-size="28" fill="var(--accent)">z</text><text x="350" y="38" font-family="var(--display)" font-weight="700" font-size="20" fill="var(--accent)">z</text></svg>
   <div class="hero"><span class="eyebrow">Sommeil</span><h2>Apnée du sommeil</h2><span class="pill now">Brouillon à valider</span><p>Ronfler ou mal respirer la nuit peut gêner le sommeil : voici les signes à connaître.</p></div>
   <div class="card"><h3>C'est quoi ?</h3><ul class="list"><li><span>L'apnée du sommeil, ce sont des pauses de la respiration pendant le sommeil.</span></li><li><span>Elle peut toucher les enfants comme les adultes.</span></li><li><span>Ces pauses peuvent empêcher de bien se reposer.</span></li><li><span>Ronfler ne veut pas toujours dire avoir une apnée.</span></li><li><span>Respirer par la bouche peut montrer que l'air passe mal par le nez.</span></li></ul></div>
@@ -404,7 +414,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 <section class="view" id="v-plus" hidden>
   <div class="hero"><span class="eyebrow">Plus</span><h2>Les autres rubriques</h2></div>
   <div class="tiles">
-    <button class="tile wide jeux" data-go="jeux"><span class="dot sun">★</span><b>Jeux</b><span>11 jeux, un défi chaque jour et des badges à gagner</span></button>
+    <button class="tile wide jeux" data-go="jeux"><span class="dot sun">★</span><b>Jeux</b><span>8 jeux, un défi chaque jour et des badges à gagner</span></button>
     <button class="tile" data-go="videos"><span class="dot sun">▶</span><b>Vidéos</b><span>Le Royaume du Sourire</span></button>
     <button class="tile" data-go="gouttiere"><span class="dot coral">G</span><b>Ma gouttière</b><span>Mon suivi</span></button>
     <button class="tile" data-go="carte"><span class="dot teal">C</span><b>La carte</b><span>Cabinets et adresses utiles</span></button>
@@ -529,7 +539,7 @@ renderEps();
 
 /* Gouttières */
 const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
-const fmt=d=>d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+const fmt=d=>d.toLocaleDateString(LOCALE,{weekday:"long",day:"numeric",month:"long"});
 function renderAligner(){
   let cfg=store.get("al",null),example=false;
   if(!cfg){example=true;const s=today();s.setDate(s.getDate()-53);cfg={start:s.toISOString().slice(0,10),days:14,total:20}}
