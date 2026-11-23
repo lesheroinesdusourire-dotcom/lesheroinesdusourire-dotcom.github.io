@@ -609,12 +609,13 @@ function controleEx(e,j){
   const c=j.c[e.n]||0;
   return `<div class="row" style="align-items:center"><div><span class="timer">${c} / ${c>e.but?e.max:e.but}</span></div><button class="btn" type="button" data-plus="${e.n}" ${c>=e.max?"disabled":""}>+1</button><button class="btn ghost" type="button" data-zero="${e.n}">Remettre à 0</button></div>`;
 }
-function numEx(e){let k=0;for(const nv of NIVEAUX)for(const x of nv.ex){k++;if(x===e)return k}return e.n}
+function ordreEx(nv){return [...nv.ex.filter(e=>e.video),...nv.ex.filter(e=>!e.video)]}
+function numEx(e){let k=0;for(const nv of NIVEAUX)for(const x of ordreEx(nv)){k++;if(x===e)return k}return e.n}
 function renderEx(){
   const j=jour(),x=NIVEAUX.find(y=>y.n===niveau);
   document.querySelectorAll("[data-niv]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.niv===niveau)));
   $("#exNiveau").innerHTML=`<b>${esc(x.nom)} · ${esc(x.quand)}</b><span>Objectif : ${esc(x.but)}</span>`;
-  $("#exList").innerHTML=x.ex.map(e=>{const ok=exFait(j,e),cs=casesDe(j,e.n),sc=seances(e);return `<div class="card ex${ok?" done":""}">
+  $("#exList").innerHTML=ordreEx(x).map(e=>{const ok=exFait(j,e),cs=casesDe(j,e.n),sc=seances(e);return `<div class="card ex${ok?" done":""}">
     <h3><span class="exn">${numEx(e)}.</span> ${esc(e.t)}${e.alias?` <small>(${esc(e.alias)})</small>`:""}</h3><div class="meta"><span>${esc(e.dose)}</span><span>${esc(e.freq)}</span></div>
     <p>${esc(e.d)}</p>
     ${controleEx(e,j)}
