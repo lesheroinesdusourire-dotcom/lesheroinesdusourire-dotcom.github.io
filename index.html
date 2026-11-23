@@ -217,8 +217,8 @@ section.view>*:nth-child(n+4){animation-delay:.18s}
 .leaflet-container .fiche a.btn.ghost{color:var(--accent)}
 .leaflet-container a.leaflet-popup-close-button{color:var(--muted);width:32px;height:32px;font-size:22px;line-height:30px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));z-index:20}
-nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
-nav.tabs button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0;font-size:.66rem;font-weight:700;color:var(--muted)}
+nav.tabs .in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr)}
+nav.tabs button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0;font-size:.62rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.15}
 nav.tabs svg{width:24px;height:24px}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -456,6 +456,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
     <button data-go="accueil" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
     <button data-go="espace"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Mon espace</button>
     <button data-go="conseils"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9q8 7 16 0"/><rect x="6" y="11" width="4" height="5" rx="1"/><rect x="14" y="11" width="4" height="5" rx="1"/></svg>Appareils</button>
+    <button data-go="videos"><svg class="hds" viewBox="0 0 24 24"><path d="M6.5 7.2 5.6 2.6l3.5 2.3L12 1.5l2.9 3.4 3.5-2.3-.9 4.6z" fill="#FFC83D" stroke="#C99A1E" stroke-width=".6" stroke-linejoin="round"/><path d="M6.5 9.5v13M17.5 9.5v13M6.5 16h11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>Héroïnes</button>
     <button data-go="langue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9c3 6 13 6 16 0"/><path d="M9 13v3a3 3 0 0 0 6 0v-3"/></svg>Langue</button>
     <button data-go="urgences"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>Urgences</button>
     <button data-go="plus"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg>Plus</button>
@@ -468,7 +469,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 const $=s=>document.querySelector(s);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const VIEWS=["accueil","gouttiere","conseils","videos","urgences","langue","carte","contact","bruxisme","apnee","plus","jeux","espace","bienvenue"];
-const ONGLET_DE={gouttiere:"plus",videos:"plus",contact:"plus",bruxisme:"plus",apnee:"plus",jeux:"plus",carte:"plus"};
+const ONGLET_DE={gouttiere:"plus",contact:"plus",bruxisme:"plus",apnee:"plus",jeux:"plus",carte:"plus"};
 /* Statistiques GoatCounter : mettre le nom de compte ici pour les activer. Seul le nom de la rubrique est compté, jamais les données de Mon espace. */
 const GOATCOUNTER_COMPTE="";
 function compterVisite(v){
