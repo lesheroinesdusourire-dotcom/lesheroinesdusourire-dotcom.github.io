@@ -216,6 +216,7 @@ section.view>*:nth-child(n+4){animation-delay:.18s}
 .leaflet-container .fiche a.btn{color:var(--surface)}
 .leaflet-container .fiche a.btn.ghost{color:var(--accent)}
 .leaflet-container a.leaflet-popup-close-button{color:var(--muted);width:32px;height:32px;font-size:22px;line-height:30px}
+.homevid-v{display:block;margin:0 auto;width:100%;max-width:340px;max-height:70vh;aspect-ratio:9/16;object-fit:cover;border-radius:18px;background:#000}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));z-index:20}
 nav.tabs .in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr)}
 nav.tabs button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0;font-size:.62rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.15}
@@ -241,7 +242,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 
 <!-- ACCUEIL -->
 <section class="view" id="v-accueil">
-  <svg class="scene" viewBox="0 0 520 290" role="img" aria-label="Le Royaume du Sourire : une dent souriante devant un château violet, entourée de bulles"><rect width="520" height="290" fill="var(--accent-soft)"/><circle cx="60" cy="60" r="30" fill="var(--coral)"/><circle cx="462" cy="52" r="24" fill="var(--sun)"/><circle cx="118" cy="118" r="13" fill="var(--teal)"/><circle cx="414" cy="120" r="17" fill="var(--coral)"/><circle cx="480" cy="178" r="20" fill="var(--teal)"/><circle cx="38" cy="182" r="16" fill="var(--sun)"/><path d="M0 248Q130 208 260 240T520 232V290H0Z" fill="var(--teal)"/><g fill="var(--accent)"><path d="M150 248V132h22v-18h20v18h20v-18h20v18h56v-18h20v18h20v-18h20v18h22v116Z"/><rect x="132" y="96" width="46" height="152" rx="6"/><rect x="342" y="96" width="46" height="152" rx="6"/></g><path d="M124 100L155 54 186 100ZM334 100L365 54 396 100Z" fill="var(--coral)"/><path d="M155 54V30l22 8-22 8M365 54V30l22 8-22 8" fill="var(--sun)" stroke="var(--sun)" stroke-width="2" stroke-linejoin="round"/><g fill="var(--sun)"><circle cx="155" cy="136" r="8"/><circle cx="365" cy="136" r="8"/></g><use href="#dent" x="184" y="118" width="152" height="172"/></svg>
+  <video class="homevid-v" src="videos/teaser-langue.mp4" poster="videos/teaser-langue.jpg" controls playsinline preload="metadata" aria-label="Teaser : la rééducation de la langue avec les Héroïnes du Sourire"></video>
   <div class="hero">
     <span class="eyebrow">Orthodontie</span>
     <h1 id="homeTitre">Les Héroïnes du Sourire</h1>
