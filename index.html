@@ -25,6 +25,7 @@
   --line:#C9B4F2; --accent:#5A22C4; --accent-soft:#EDE3FF;
   --sun:#FFC83D; --sun-ink:#5A3E00; --coral:#FF7A6B; --coral-ink:#4A1109; --teal:#2CC9B8; --teal-ink:#06332E; --ombre:#2A1A4A66;
   --alert:#C2301D; --alert-soft:#FDE8E5; --ok:#14774C; --ok-soft:#DFF4EA;
+  --carton:#D9A877; --argent:#D5DAE3;
   --display:"Fredoka","Nunito Sans",system-ui,sans-serif;
   --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
@@ -230,6 +231,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 .trad-note{text-align:center;margin:-4px 0 10px}
 </style>
 <link rel="stylesheet" href="espace.css">
+<link rel="stylesheet" href="royaume.css">
 <style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -248,6 +250,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
     <h1 id="homeTitre">Les Héroïnes du Sourire</h1>
     <p id="homeIntro">Bienvenue dans votre espace patient : tout ce qu'il faut pendant votre traitement, dans votre poche.</p>
   </div>
+  <div id="homeMessage"></div>
   <div class="stack" id="homePerso"></div>
   <div class="card" id="homeRdv">
     <h3>Prendre rendez-vous</h3>
@@ -347,12 +350,38 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 <section class="view" id="v-langue" hidden>
   <svg class="scene" viewBox="0 0 520 170" role="img" aria-label="Une langue souriante et un haltère"><rect width="520" height="170" fill="var(--accent-soft)"/><circle cx="46" cy="38" r="20" fill="var(--coral)"/><circle cx="476" cy="44" r="14" fill="var(--sun)"/><circle cx="440" cy="130" r="22" fill="var(--teal)"/><circle cx="84" cy="136" r="10" fill="var(--sun)"/><path d="M216 52a22 22 0 0 1 22-22h44a22 22 0 0 1 22 22v44a44 44 0 0 1-88 0Z" fill="var(--coral)"/><circle cx="242" cy="66" r="6" fill="var(--coral-ink)"/><circle cx="278" cy="66" r="6" fill="var(--coral-ink)"/><path d="M242 88q18 16 36 0" fill="none" stroke="var(--coral-ink)" stroke-width="5" stroke-linecap="round"/><g fill="var(--accent)"><rect x="330" y="72" width="60" height="9" rx="4"/><rect x="322" y="56" width="14" height="40" rx="6"/><rect x="384" y="56" width="14" height="40" rx="6"/></g></svg>
   <div class="hero"><span class="eyebrow">Rééducation linguale</span><h2>Ma langue fait du sport</h2><p>Une bonne place de la langue aide le traitement et évite que les dents bougent après.</p></div>
+  <div id="royaumeCarte"></div>
   <div class="card"><h3>Bien avaler en 3 clés</h3><ol class="keys"><li><span><b>La langue en haut</b>, collée au palais. Jamais en avant contre les dents.</span></li><li><span><b>Les dents serrées</b>, celles du haut contre celles du bas.</span></li><li><span><b>Les lèvres au repos</b>, entrouvertes. Elles ne bougent pas quand on avale.</span></li></ol><p class="note">Vérifiez devant un miroir : on avale plus de 2000 fois par jour !</p></div>
   <div class="seg" id="exNiveaux" role="group" aria-label="Choisir le niveau"><button type="button" data-niv="1">Débutant</button><button type="button" data-niv="2">Intermédiaire</button><button type="button" data-niv="3">Avancé</button></div>
   <p class="niveau" id="exNiveau"></p>
   <div class="card"><span class="eyebrow">Aujourd'hui</span><p class="stars" id="exScore">0 exercice sur 7</p><div class="meter"><i id="exBar" style="width:0%"></i></div></div>
   <div class="stack" id="exList"></div>
   <p class="note">Ces exercices sont des exercices de base. Faites ceux que le docteur ou l'orthophoniste vous a montrés.</p>
+  <div class="tiles">
+    <button class="tile dragon" data-go="dragon"><span class="dot sun">D</span><b>Le souffle du dragon</b><span>Respirer par le nez, avec Léo</span></button>
+    <button class="tile" data-go="frein"><span class="dot coral">F</span><b>Le frein lingual</b><span>Ce que c'est, quand en parler</span></button>
+  </div>
+</section>
+
+<!-- LE SOUFFLE DU DRAGON : reprend l'exercice « Respiration par le nez » de NIVEAUX, sans changer son texte (royaume.js) -->
+<section class="view" id="v-dragon" hidden>
+  <svg class="scene dragon-souffle" viewBox="0 0 520 170" role="img" aria-label="Un gentil dragon qui souffle doucement par le nez"><rect width="520" height="170" fill="var(--accent-soft)"/><circle cx="46" cy="38" r="20" fill="var(--coral)"/><circle cx="476" cy="44" r="14" fill="var(--sun)"/><circle cx="84" cy="136" r="10" fill="var(--sun)"/><path d="M150 150c0-60 30-104 92-104 40 0 70 22 70 56 0 30-26 48-60 48z" fill="var(--teal)" stroke="var(--accent)" stroke-width="5" stroke-linejoin="round"/><path d="M196 52l-10-30 26 20M232 46l4-32 18 30" fill="var(--sun)" stroke="var(--accent)" stroke-width="5" stroke-linejoin="round"/><circle cx="246" cy="84" r="9" fill="var(--ink)"/><circle cx="249" cy="81" r="3" fill="var(--surface)"/><circle cx="228" cy="104" r="8" fill="var(--coral)" opacity=".7"/><path d="M262 128q18 10 36-2" fill="none" stroke="var(--teal-ink)" stroke-width="5" stroke-linecap="round"/><circle cx="300" cy="100" r="4.5" fill="var(--teal-ink)"/><circle cx="306" cy="88" r="4.5" fill="var(--teal-ink)"/><circle class="fumee" cx="338" cy="84" r="14" fill="var(--surface)"/><circle class="fumee" cx="372" cy="74" r="18" fill="var(--surface)"/><circle class="fumee" cx="414" cy="66" r="22" fill="var(--surface)"/></svg>
+  <button class="back" type="button" data-go="langue">‹ Mes exercices</button>
+  <div class="hero"><span class="eyebrow">Respiration</span><h2>Le souffle du dragon</h2><p>Dans le Royaume du Sourire, le dragon souffle tout doucement… par le nez !</p></div>
+  <div class="guide"><img src="images/personnages/leo.svg" alt=""><p class="bulle-leo">Salut, c'est Léo la Langue ! Je vous présente l'exercice « Respiration par le nez ». Lancez le minuteur : comme le dragon, respirez seulement par le nez !</p></div>
+  <div id="dragonEx"></div>
+  <p class="note">Ces exercices sont des exercices de base. Faites ceux que le docteur ou l'orthophoniste vous a montrés.</p>
+</section>
+
+<!-- FREIN LINGUAL : BROUILLON, retirer le badge après validation des docteures. Pas de test ni d'auto-évaluation. -->
+<section class="view" id="v-frein" hidden>
+  <svg class="scene" viewBox="0 0 520 170" role="img" aria-label="Une langue souriante levée vers le palais"><rect width="520" height="170" fill="var(--accent-soft)"/><circle cx="46" cy="38" r="20" fill="var(--coral)"/><circle cx="476" cy="44" r="14" fill="var(--sun)"/><circle cx="440" cy="130" r="22" fill="var(--teal)"/><circle cx="84" cy="136" r="10" fill="var(--sun)"/><path d="M170 46q90-34 180 0" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"/><path d="M196 140q64-20 128 0" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"/><path d="M214 118c0-40 20-62 46-62s46 22 46 62z" fill="var(--coral)" stroke="var(--accent)" stroke-width="5" stroke-linejoin="round"/><circle cx="246" cy="86" r="5" fill="var(--coral-ink)"/><circle cx="274" cy="86" r="5" fill="var(--coral-ink)"/><path d="M248 100q12 9 24 0" fill="none" stroke="var(--coral-ink)" stroke-width="4" stroke-linecap="round"/><path d="M260 118v18" stroke="var(--coral-ink)" stroke-width="5" stroke-linecap="round"/></svg>
+  <button class="back" type="button" data-go="langue">‹ Mes exercices</button>
+  <div class="hero"><span class="eyebrow">La langue</span><h2>Le frein lingual</h2><span class="pill now">Brouillon à valider</span><p>Une fiche simple pour comprendre ce petit repli sous la langue.</p></div>
+  <div class="card"><h3>C'est quoi ?</h3><ul class="list"><li><span>Le frein lingual est le petit repli de peau sous la langue.</span></li><li><span>Il relie le dessous de la langue au fond de la bouche.</span></li><li><span>Tout le monde en a un. Sa forme et sa longueur changent d'une personne à l'autre.</span></li></ul></div>
+  <div class="card"><h3>Pourquoi on en parle ?</h3><ul class="list"><li><span>Pour bien avaler, la langue doit pouvoir monter vers le palais.</span></li><li><span>Parfois, un frein court ou serré peut gêner ce mouvement.</span></li><li><span>Seul un professionnel de santé peut examiner le frein et dire ce qu'il en est.</span></li></ul></div>
+  <div class="card"><h3>Quand en parler à l'orthodontiste ?</h3><ul class="list"><li><span>Vous avez une question sur le frein de la langue.</span></li><li><span>La langue a du mal à monter vers le palais.</span></li><li><span>Les exercices de la langue restent très difficiles malgré l'entraînement.</span></li></ul><p>Notez votre question dans « Mes notes » de Mon espace, et posez-la au prochain rendez-vous.</p></div>
+  <p class="note">Ces informations sont générales. Elles ne remplacent pas l'avis du docteur.</p>
 </section>
 
 <!-- CONTACT -->
@@ -420,6 +449,8 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
     <button class="tile" data-go="gouttiere"><span class="dot coral">G</span><b>Ma gouttière</b><span>Mon suivi</span></button>
     <button class="tile" data-go="carte"><span class="dot teal">C</span><b>La carte</b><span>Cabinets et adresses utiles</span></button>
     <button class="tile" data-go="contact"><span class="dot ">@</span><b>Contact</b><span>Adresse et rendez-vous</span></button>
+    <button class="tile dragon" data-go="dragon"><span class="dot sun">D</span><b>Le souffle du dragon</b><span>Respirer par le nez, avec Léo</span></button>
+    <button class="tile" data-go="frein"><span class="dot coral">F</span><b>Le frein lingual</b><span>Ce que c'est, quand en parler</span></button>
   </div>
 </section>
 
@@ -469,8 +500,8 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 <script>
 const $=s=>document.querySelector(s);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const VIEWS=["accueil","gouttiere","conseils","videos","urgences","langue","carte","contact","bruxisme","apnee","plus","jeux","espace","bienvenue"];
-const ONGLET_DE={gouttiere:"plus",contact:"plus",bruxisme:"plus",apnee:"plus",jeux:"plus",carte:"plus"};
+const VIEWS=["accueil","gouttiere","conseils","videos","urgences","langue","carte","contact","bruxisme","apnee","plus","jeux","espace","bienvenue","dragon","frein"];
+const ONGLET_DE={gouttiere:"plus",contact:"plus",bruxisme:"plus",apnee:"plus",jeux:"plus",carte:"plus",dragon:"langue",frein:"langue"};
 /* Statistiques GoatCounter : mettre le nom de compte ici pour les activer. Seul le nom de la rubrique est compté, jamais les données de Mon espace. */
 const GOATCOUNTER_COMPTE="";
 function compterVisite(v){
@@ -495,6 +526,7 @@ function go(v){
   if(v==="espace"&&window.Espace)Espace.renderEspace();
   if(v==="accueil"&&window.Espace)Espace.renderAccueil();
   if(v==="urgences"&&window.Espace)Espace.trierUrgences();
+  if(window.Royaume)Royaume.vue(v);
   compterVisite(v);
   window.scrollTo(0,0);
 }
@@ -580,7 +612,7 @@ const NIVEAUX=[{"n": 1, "nom": "Débutant", "quand": "semaines 1 à 4", "but": "
 const EX=NIVEAUX.flatMap(x=>x.ex);
 const fmtT=t=>Math.floor(t/60)+":"+String(t%60).padStart(2,"0");
 function jour(){const s=store.get("ex3",null);return s&&s.day===dkey(today())&&s.s&&s.c?s:{day:dkey(today()),s:{},c:{}}}
-function setJour(j){store.set("ex3",j)}
+function setJour(j){store.set("ex3",j);if(window.Royaume)Royaume.noter(j)}
 /* Séances prévues : le nombre de cases est le haut de la fourchette (« 2 à 3 fois » = 3 cases), l'exercice est fait au bas de la fourchette */
 function seances(e){const m=e.freq.match(/(\d+)(?: à (\d+))? fois par jour/);return m?{min:+m[1],max:+(m[2]||m[1])}:{min:1,max:1}}
 function casesDe(j,n){return j.s[n]||[]}
@@ -625,6 +657,7 @@ function renderEx(){
   const n=x.ex.filter(e=>exFait(j,e)).length,t=x.ex.length;
   $("#exScore").textContent=n+" exercice"+(n>1?"s":"")+" sur "+t+(n===t?" · champion !":"");
   $("#exBar").style.width=(n/t*100)+"%";
+  if(window.Royaume)Royaume.renderCarte();
 }
 $("#exNiveaux").addEventListener("click",e=>{const b=e.target.closest("[data-niv]");if(!b)return;stopChrono();niveau=+b.dataset.niv;store.set("exNiv",niveau);renderEx()});
 $("#exList").addEventListener("click",ev=>{
@@ -732,6 +765,7 @@ renderAligner();renderStreak();renderEx();
 if(window.qrcode)makeQR($("#qrUrl").value);
 go(location.hash.slice(1)||"accueil");
 </script>
+<script src="royaume.js"></script>
 <script src="espace.js"></script>
 
 </body>

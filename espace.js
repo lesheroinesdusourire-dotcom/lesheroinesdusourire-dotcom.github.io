@@ -2,7 +2,7 @@
    RÈGLE ABSOLUE : tout reste dans ce téléphone (localStorage). Aucune de ces données n'est envoyée, ni aux statistiques. */
 (function(){
 const doux=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
-const CLES=["profil","ex3","exNiv","al","wear","jeux","langue"];
+const CLES=["profil","ex3","exNiv","al","wear","jeux","langue","royaume"];
 const vide={etat:null,prenom:"",appareils:[],avatar:"dent",pose:"",rdv:"",notes:"",suivi:{}};
 function lire(){const p=store.get("profil",null);return p&&typeof p==="object"&&!Array.isArray(p)?{...vide,...p,appareils:Array.isArray(p.appareils)?p.appareils.filter(a=>APPS.some(x=>x.id===a)):[],suivi:p.suivi&&typeof p.suivi==="object"?p.suivi:{}}:{...vide}}
 let P=lire();
@@ -85,6 +85,7 @@ const ASSAINIR={
     return{etat:["patient","visiteur","aucun","sais-pas"].includes(o.etat)?o.etat:"visiteur",prenom:typeof o.prenom==="string"?o.prenom.slice(0,30):"",appareils:Array.isArray(o.appareils)?o.appareils.filter(a=>APPS.some(x=>x.id===a)):[],avatar:AVATARS.some(a=>a[0]===o.avatar)?o.avatar:"dent",pose:estDate(o.pose)?o.pose:"",rdv:estDate(o.rdv)?o.rdv:"",notes:typeof o.notes==="string"?o.notes.slice(0,2000):"",suivi,rappels,proposer:[]}},
   ex3(o){if(!estObjet(o)||!estDate(o.day)||!estObjet(o.s)||!estObjet(o.c))return null;const s={},c={};EX.forEach(e=>{if(Array.isArray(o.s[e.n]))s[e.n]=o.s[e.n].filter(i=>Number.isInteger(i)&&i>=0&&i<5);if(o.c[e.n]!==undefined)c[e.n]=entier(o.c[e.n],99)});return{day:o.day,s,c,fete:o.fete===true}},
   exNiv(o){return[1,2,3].includes(o)?o:null},
+  royaume(o){return window.Royaume?Royaume.ASSAINIR(o):null},
   langue(o){return["fr","en","es"].includes(o)?o:null},
   al(o){return estObjet(o)&&estDate(o.start)&&[7,10,14].includes(o.days)?{start:o.start,days:o.days,total:entier(o.total,99)||20}:null},
   wear(o){return Array.isArray(o)?o.filter(estDate):null},
@@ -163,6 +164,7 @@ function ligneGouttiere(){
 }
 function renderAccueil(){
   P=lire();
+  if(window.Royaume)Royaume.renderMessage();
   const box=$("#homePerso"),tuiles=$("#v-accueil .tiles"),titre=$("#homeTitre"),intro=$("#homeIntro");
   const visiteur=P.etat==="visiteur"||P.etat==="aucun";
   tuiles.hidden=visiteur;
@@ -188,10 +190,11 @@ function renderAccueil(){
 function renderEspace(){
   P=lire();
   const v=$("#v-espace"),j=store.get("jeux",null)||{},badges=Array.isArray(j.badges)?j.badges:[],ex=jour(),faits=EX.filter(e=>exFait(ex,e)).length;
-  v.innerHTML=`<div class="hero"><span class="eyebrow">Mon espace</span><div class="moi"><span class="avatar">${avatarHTML(P.avatar)}</span><h2>${P.prenom?esc(P.prenom):"Moi"}</h2></div></div>
+  v.innerHTML=`<div class="hero"><span class="eyebrow">Mon espace</span><div class="moi"><span class="avatar-wrap"><span class="avatar">${avatarHTML(P.avatar)}</span>${window.Royaume?Royaume.couronneSurAvatar():""}</span><h2>${P.prenom?esc(P.prenom):"Moi"}</h2></div></div>
     <div class="card prive"><b>Tout reste dans ton téléphone.</b><p>Rien n'est envoyé sur internet : ni à nous, ni aux statistiques.</p></div>
     <div class="card"><label for="esPrenom">Mon prénom<input id="esPrenom" type="text" maxlength="30" autocomplete="off" value=""></label>
       <span class="etiquette">Mon avatar</span><div class="avatars">${AVATARS.map(a=>`<button type="button" class="avatar choix-av" data-av="${a[0]}" aria-pressed="${P.avatar===a[0]}" aria-label="${esc(a[1])}">${avatarHTML(a[0])}</button>`).join("")}</div></div>
+    ${window.Royaume?Royaume.htmlEspace():""}
     ${P.appareils.filter(a=>SUIVIS[a]).map(a=>carteSuivi(a)).join("")}
     ${P.appareils.includes("gouttieres")?`<div class="card suivi"><h3>Mes gouttières</h3>${ligneGouttiere()}<button class="btn ghost" type="button" data-go="gouttiere">Régler mon suivi</button>${joursAligneur()?blocRappel("gouttieres"):`<p class="note">Enregistre ta prescription dans ton suivi pour ajouter un rappel.</p>`}</div>`:""}
     <div class="card"><h3>Mes appareils</h3>${grilleAppareils(P.appareils)}<button class="btn ghost" type="button" id="esApp">Enregistrer mes appareils</button></div>
